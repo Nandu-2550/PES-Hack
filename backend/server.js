@@ -19,7 +19,7 @@ connectDB();
 const app = express();
 const server = http.createServer(app);
 
-const FRONTEND_URL = process.env.FRONTEND_URL || "https://agrihub-frontend.vercel.app";
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://agrihub-blue.vercel.app";
 const corsOrigins = process.env.NODE_ENV === 'production'
   ? [FRONTEND_URL]
   : ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000", "http://127.0.0.1:3000"];
