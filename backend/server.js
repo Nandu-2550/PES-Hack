@@ -20,18 +20,17 @@ const app = express();
 const server = http.createServer(app);
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://agrihub-frontend.vercel.app";
-const allowedOrigins = [FRONTEND_URL, "http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "http://127.0.0.1:3000"];
+const corsOrigins = process.env.NODE_ENV === 'production'
+  ? [FRONTEND_URL]
+  : ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000", "http://127.0.0.1:3000"];
 
 // CORS for Express
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin) {
-      return callback(null, true);
-    }
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    callback(new Error("CORS policy violation: origin not allowed"));
+    // Allow server-to-server and same-origin requests (no origin)
+    if (!origin) return callback(null, true);
+    if (corsOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error("CORS policy violation: origin not allowed"));
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   credentials: true
@@ -42,7 +41,7 @@ app.use(express.json());
 // Init Socket.io
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: corsOrigins,
     methods: ["GET", "POST"],
     credentials: true
   }

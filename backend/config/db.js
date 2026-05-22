@@ -28,12 +28,19 @@ const connectDB = async () => {
     console.log(`[DEBUG] Attempting to connect to MongoDB using URI starting with: "${uri.substring(0, 20)}..."`);
 
     const conn = await mongoose.connect(uri, {
-      dbName: 'AgriHub'
+      dbName: 'AgriHub',
+      serverSelectionTimeoutMS: 5000,
+      useNewUrlParser: true,
+      useUnifiedTopology: true
     });
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error(`Error connecting to MongoDB: ${error.message}`);
-    process.exit(1);
+    // Don't crash the process immediately on database connectivity issues on cloud startup.
+    // Allow the app to continue so Render can complete the deployment; production
+    // monitoring should detect and surface DB connectivity problems.
+    // Optionally, implement a retry strategy here.
+    return;
   }
 };
 
