@@ -1,0 +1,32 @@
+.bg-agri-light {
+  font-family: var(--font-sans);
+  color: var(--color-neutral-900);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cpath d='M0 24 C30 12 60 32 120 18 M0 54 C30 68 60 40 120 58 M0 86 C30 74 60 96 120 80' fill='none' stroke='%23000000' stroke-width='1' stroke-opacity='0.02'/%3E%3C/svg%3E"),
+    linear-gradient(135deg, #f4f6f4 0%, #e8ebe7 100%);
+  background-size: 120px 120px, cover;
+  background-repeat: repeat, no-repeat;
+  transition: background-color var(--transition-ui), color var(--transition-ui);
+}
+
+.bg-agri-dark {
+  font-family: var(--font-sans);
+  color: var(--color-neutral-100);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cpath d='M0 24 C30 12 60 32 120 18 M0 54 C30 68 60 40 120 58 M0 86 C30 74 60 96 120 80' fill='none' stroke='%23ffffff' stroke-width='1' stroke-opacity='0.03'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 30% 20%, #1b4332 0%, #1a1f1c 55%, #0f2e22 100%);
+  background-size: 120px 120px, cover;
+  background-repeat: repeat, no-repeat;
+  transition: background-color var(--transition-ui), color var(--transition-ui);
+}
+
+.bg-agri-grid {
+  font-family: var(--font-sans);
+  color: var(--color-neutral-100);
+  background-color: #1a1f1c;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0, transparent 31px, rgba(64,145,108,0.04) 31px, rgba(64,145,108,0.04) 32px),
+    repeating-linear-gradient(90deg, transparent 0, transparent 31px, rgba(64,145,108,0.04) 31px, rgba(64,145,108,0.04) 32px);
+  background-size: 32px 32px;
+  transition: background-color var(--transition-ui), color var(--transition-ui);
+}

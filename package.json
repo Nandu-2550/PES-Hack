@@ -1,7 +1,11 @@
 {
   "name": "agrishield-ai",
   "scripts": {
-    "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\" \"npm run dev --prefix ai-engine\"",
+    "dev": "concurrently --kill-others-on-fail --names \"FRONTEND,BACKEND\" --prefix-colors \"cyan,green\" \"npm run dev --prefix frontend\" \"npm run start --prefix backend\"",
+    "dev:full": "concurrently --kill-others-on-fail --names \"FRONTEND,BACKEND,AI\" --prefix-colors \"cyan,green,yellow\" \"npm run dev --prefix frontend\" \"npm run start --prefix backend\" \"cd ai-engine && .\\\\venv\\\\Scripts\\\\python.exe -m uvicorn main:app --reload --port 8000\"",
+    "start:frontend": "npm run dev --prefix frontend",
+    "start:backend": "npm run start --prefix backend",
+    "start:ai": "cd ai-engine && .\\venv\\Scripts\\python.exe -m uvicorn main:app --reload --port 8000",
     "install:all": "npm install && npm install --prefix frontend && npm install --prefix backend"
   },
   "devDependencies": {

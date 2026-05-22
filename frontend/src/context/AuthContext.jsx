@@ -44,6 +44,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("agrishield_token", res.data.token);
     localStorage.setItem("agrishield_user", JSON.stringify(res.data.user));
     setUser(res.data.user);
+    // Return the full response so callers can persist session keys independently
+    return res;
   };
 
   const register = async (formData) => {
@@ -52,13 +54,19 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("agrishield_token", res.data.token);
     localStorage.setItem("agrishield_user", JSON.stringify(res.data.user));
     setUser(res.data.user);
+    // Return the full response so callers can persist session keys independently
+    return res;
   };
 
   const logout = () => {
     setToken(null);
     setUser(null);
+    // Remove AuthContext keys
     localStorage.removeItem("agrishield_token");
     localStorage.removeItem("agrishield_user");
+    // Remove ProtectedRoute keys — must be cleared together on logout
+    localStorage.removeItem("userToken");
+    localStorage.removeItem("userProfile");
   };
 
   return (

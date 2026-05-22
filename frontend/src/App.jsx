@@ -1,29 +1,16 @@
-import React, { useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { getUnsyncedLogs, markLogsSynced } from "./db/localForage";
 import api from "./api/client";
-import { AuthContext } from "./context/AuthContext";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import DiagnoseScan from "./pages/DiagnoseScan";
 import JobBoard from "./pages/JobBoard";
 import Machinery from "./pages/Machinery";
 import Weather from "./pages/Weather";
-import BottomNav from "./components/BottomNav";
 import OfflineBanner from "./components/OfflineBanner";
-
-const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useContext(AuthContext);
-  if (loading) return <div className="page-container">Loading...</div>;
-  if (!user) return <Navigate to="/" />;
-  return (
-    <>
-      {children}
-      <BottomNav />
-    </>
-  );
-};
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const App = () => {
   useEffect(() => {
@@ -47,7 +34,12 @@ const App = () => {
   }, []);
 
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       <Toaster position="top-center" toastOptions={{
         style: {
           background: '#1a3a2a',
@@ -55,13 +47,55 @@ const App = () => {
         }
       }}/>
       <Routes>
+        {/* Public routes — no token required */}
         <Route path="/" element={<Onboarding />} />
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/diagnose" element={<ProtectedRoute><DiagnoseScan /></ProtectedRoute>} />
-        <Route path="/jobs" element={<ProtectedRoute><JobBoard /></ProtectedRoute>} />
-        <Route path="/machinery" element={<ProtectedRoute><Machinery /></ProtectedRoute>} />
-        <Route path="/weather" element={<ProtectedRoute><Weather /></ProtectedRoute>} />
-        <Route path="*" element={<Navigate to="/" />} />
+
+        {/* Protected routes — require userToken in localStorage.
+            ProtectedRoute reads localStorage directly on every render,
+            so the check survives hard refreshes and offline navigation. */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/diagnose"
+          element={
+            <ProtectedRoute>
+              <DiagnoseScan />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/jobs"
+          element={
+            <ProtectedRoute>
+              <JobBoard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/machinery"
+          element={
+            <ProtectedRoute>
+              <Machinery />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/weather"
+          element={
+            <ProtectedRoute>
+              <Weather />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Catch-all — redirect unknown paths to root */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <OfflineBanner />
     </BrowserRouter>

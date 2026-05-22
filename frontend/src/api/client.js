@@ -1,7 +1,12 @@
 import axios from "axios";
 
-// Using relative path so it hits the Vite dev server proxy or the current host
-const client = axios.create();
+const API_BASE_URL = window.location.hostname === "localhost"
+  ? "http://localhost:5000"
+  : "https://agrihub-backend.onrender.com";
+
+const client = axios.create({
+  baseURL: API_BASE_URL,
+});
 
 client.interceptors.request.use(
   (config) => {

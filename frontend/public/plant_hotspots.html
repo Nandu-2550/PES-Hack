@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgriShield AI — Botanical Diagnosis Hotspots</title>
+  <style>
+    /* ─── Page Layout ──────────────────────────────────────────────────────── */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #050505;
+      color: #ffffff;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── Container ────────────────────────────────────────────────────────── */
+    #container {
+      background-color: #0e0e0e;
+      border: 1px solid #142c1e;
+      border-radius: 18px;
+      padding: 30px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.9), 
+                  0 0 30px rgba(0, 200, 64, 0.05),
+                  inset 0 1px 1px rgba(255, 255, 255, 0.03);
+      max-width: 420px;
+      width: 100%;
+      box-sizing: border-box;
+      transition: border-color 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    /* ─── Header ───────────────────────────────────────────────────────────── */
+    #status {
+      font-size: 11px;
+      font-weight: 700;
+      color: #4b6e56;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      margin: 0 0 24px 0;
+      text-align: center;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+
+    /* ─── Footer ───────────────────────────────────────────────────────────── */
+    #info {
+      min-height: 24px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 24px;
+      text-align: center;
+      letter-spacing: 0.05em;
+      transition: color 0.3s ease, text-shadow 0.3s ease;
+    }
+
+    /* ─── Interactive SVG Rules ────────────────────────────────────────────── */
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 520px;
+      background: transparent;
+    }
+
+    .clickable-part {
+      cursor: pointer;
+      pointer-events: all;
+    }
+
+    .clickable-part path,
+    .clickable-part circle,
+    .clickable-part use,
+    .clickable-part polygon {
+      transition: filter 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                  stroke-width 0.2s ease,
+                  stroke 0.2s ease;
+    }
+
+    .clickable-part:hover {
+      filter: brightness(1.6);
+    }
+
+    /* ─── Drawing-On & Pulse Keyframe Animations ───────────────────────────── */
+    
+    /* Stage 1: Roots (Delay: 300ms, Duration: 900ms) */
+    .pulse-roots {
+      opacity: 0;
+      animation: drawFade 900ms cubic-bezier(0.4, 0, 0.2, 1) 300ms forwards,
+                 pulse-roots 2.4s ease-in-out 1200ms infinite;
+    }
+
+    /* Stage 2: Stem (Delay: 1100ms, Duration: 800ms) */
+    .pulse-stem {
+      opacity: 0;
+      animation: drawFade 800ms cubic-bezier(0.4, 0, 0.2, 1) 1100ms forwards,
+                 pulse-stem 2.8s ease-in-out 1900ms infinite;
+    }
+
+    /* Stage 3: Leaves Lower (Delay: 1900ms/2080ms, Duration: 500ms) */
+    .pulse-leaf-ll {
+      opacity: 0;
+      animation: drawFade 500ms cubic-bezier(0.4, 0, 0.2, 1) 1900ms forwards,
+                 pulse-leaf-ll 2.0s ease-in-out 2400ms infinite;
+    }
+    .pulse-leaf-rl {
+      opacity: 0;
+      animation: drawFade 500ms cubic-bezier(0.4, 0, 0.2, 1) 2080ms forwards,
+                 pulse-leaf-rl 2.1s ease-in-out 2580ms infinite;
+    }
+
+    /* Stage 3: Leaves Mid (Delay: 2260ms/2440ms, Duration: 500ms) */
+    .pulse-leaf-lm {
+      opacity: 0;
+      animation: drawFade 500ms cubic-bezier(0.4, 0, 0.2, 1) 2260ms forwards,
+                 pulse-leaf-lm 2.2s ease-in-out 2760ms infinite;
+    }
+    .pulse-leaf-rm {
+      opacity: 0;
+      animation: drawFade 500ms cubic-bezier(0.4, 0, 0.2, 1) 2440ms forwards,
+                 pulse-leaf-rm 2.3s ease-in-out 2940ms infinite;
+    }
+
+    /* Stage 3: Leaves Upper (Delay: 2620ms/2800ms, Duration: 480ms) */
+    .pulse-leaf-lu {
+      opacity: 0;
+      animation: drawFade 480ms cubic-bezier(0.4, 0, 0.2, 1) 2620ms forwards,
+                 pulse-leaf-lu 1.8s ease-in-out 3100ms infinite;
+    }
+    .pulse-leaf-ru {
+      opacity: 0;
+      animation: drawFade 480ms cubic-bezier(0.4, 0, 0.2, 1) 2800ms forwards,
+                 pulse-leaf-ru 1.9s ease-in-out 3280ms infinite;
+    }
+
+    /* Stage 4: Fruit (Delay: 3200ms, Duration: 600ms) */
+    .pulse-fruit {
+      opacity: 0;
+      animation: drawFade 600ms cubic-bezier(0.4, 0, 0.2, 1) 3200ms forwards,
+                 pulse-fruit 2.5s ease-in-out 3800ms infinite;
+    }
+
+    /* Stage 5: Flower (Delay: 3700ms, Duration: 900ms) */
+    .pulse-flower {
+      opacity: 0;
+      animation: drawFade 900ms cubic-bezier(0.4, 0, 0.2, 1) 3700ms forwards,
+                 pulse-flower 2.6s ease-in-out 4600ms infinite;
+    }
+
+    /* General Draw Fade Keyframe */
+    @keyframes drawFade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Pulsing Opacities (0.65 -> 1.0 -> 0.65) */
+    @keyframes pulse-roots   { 0%, 100% { opacity: 0.65; } 50% { opacity: 1.0; } }
+    @keyframes pulse-stem    { 0%, 100% { opacity: 0.65; } 50% { opacity: 1.0; } }
+    @keyframes pulse-leaf-ll { 0%, 100% { opacity: 0.65; } 50% { opacity: 1.0; } }
+    @keyframes pulse-leaf-rl { 0%, 100% { opacity: 0.65; } 50% { opacity: 1.0; } }
+    @keyframes pulse-leaf-lm { 0%, 100% { opacity: 0.65; } 50% { opacity: 1.0; } }
+    @keyframes pulse-leaf-rm { 0%, 100% { opacity: 0.65; } 50% { opacity: 1.0; } }
+    @keyframes pulse-leaf-lu { 0%, 100% { opacity: 0.65; } 50% { opacity: 1.0; } }
+    @keyframes pulse-leaf-ru { 0%, 100% { opacity: 0.65; } 50% { opacity: 1.0; } }
+    @keyframes pulse-fruit   { 0%, 100% { opacity: 0.65; } 50% { opacity: 1.0; } }
+    @keyframes pulse-flower  { 0%, 100% { opacity: 0.65; } 50% { opacity: 1.0; } }
+
+    /* ─── Selection Mode Overrides ────────────────────────────────────────── */
+    svg.selected-mode .clickable-part {
+      animation: none !important;
+      opacity: 0.15 !important;
+      filter: none !important;
+      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s ease;
+    }
+
+    svg.selected-mode .clickable-part.highlighted {
+      opacity: 1.0 !important;
+      filter: url(#fSelect) !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="container">
+    <div id="status">Tap a part to diagnose</div>
+
+    <svg viewBox="0 0 360 540" xmlns="http://www.w3.org/2000/svg" id="plant-svg">
+      <defs>
+        <!-- ─── Glow Filters ────────────────────────────────────────────────── -->
+        <!-- Roots Glow Filter -->
+        <filter id="fRoot" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.5" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+
+        <!-- Stem & Leaves Glow Filter -->
+        <filter id="fGreen" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+
+        <!-- Flower Glow Filter -->
+        <filter id="fFlower" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="5" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+
+        <!-- Fruit Glow Filter -->
+        <filter id="fFruit" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+
+        <!-- Select Highlight Glow Filter -->
+        <filter id="fSelect" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="7" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+
+        <!-- ─── Reusable Petal Path Declarations ────────────────────────────── -->
+        <!-- Flower Petal Outlines (centered at 0,0, reaching upwards) -->
+        <path id="outer-petal" d="M 0 0 C -30 -48 -30 -58 0 -58 C 30 -58 30 -48 0 0 Z" fill="none" />
+        <path id="mid-petal" d="M 0 0 C -20 -34 -20 -42 0 -42 C 20 -42 20 -34 0 0 Z" fill="none" />
+        <path id="inner-petal" d="M 0 0 C -12 -20 -12 -26 0 -26 C 12 -26 12 -20 0 0 Z" fill="none" />
+      </defs>
+
+      <!-- ─── ROOTS GROUP (Cyan Color Scheme) ────────────────────────────────── -->
+      <g id="roots" class="clickable-part pulse-roots" onclick="pick('Root', '#00bcd4')">
+        <!-- Broad Outer Glow Underlay -->
+        <g stroke="#00bcd4" fill="none" opacity="0.3" filter="url(#fRoot)">
+          <!-- Main taproots -->
+          <path d="M 178 390 C 172 415 158 440 150 480" stroke-width="4.5" />
+          <path d="M 178 390 C 184 415 198 440 205 485" stroke-width="4.5" />
+          <path d="M 178 390 C 178 420 180 450 182 492" stroke-width="4.5" />
+          <!-- Secondary roots -->
+          <path d="M 174 410 C 155 425 130 435 115 455" stroke-width="3.0" />
+          <path d="M 182 410 C 200 425 225 435 240 455" stroke-width="3.0" />
+          <path d="M 164 430 C 145 445 125 455 105 478" stroke-width="3.0" />
+          <path d="M 192 430 C 210 445 230 455 250 478" stroke-width="3.0" />
+        </g>
+
+        <!-- Main Neon Core and Tip Lines -->
+        <g stroke="#22d4f0" stroke-linecap="round" fill="none" filter="url(#fRoot)">
+          <!-- Taproots -->
+          <path d="M 178 390 C 172 415 158 440 150 480" stroke-width="2.2" />
+          <path d="M 178 390 C 184 415 198 440 205 485" stroke-width="2.2" />
+          <path d="M 178 390 C 178 420 180 450 182 492" stroke-width="2.2" />
+          <!-- Secondary branches -->
+          <path d="M 174 410 C 155 425 130 435 115 455" stroke-width="1.4" />
+          <path d="M 182 410 C 200 425 225 435 240 455" stroke-width="1.4" />
+          <path d="M 164 430 C 145 445 125 455 105 478" stroke-width="1.4" />
+          <path d="M 192 430 C 210 445 230 455 250 478" stroke-width="1.4" />
+          <!-- Tertiary tips / lateral spread -->
+          <path d="M 115 455 C 95 465 80 472 66 480" stroke-width="0.8" />
+          <path d="M 240 455 C 260 465 275 472 292 480" stroke-width="0.8" />
+          <path d="M 105 478 C 90 482 78 485 70 488" stroke-width="0.8" />
+          <path d="M 250 478 C 265 482 278 485 286 488" stroke-width="0.8" />
+          <path d="M 150 480 C 140 485 130 488 122 490" stroke-width="0.8" />
+          <path d="M 205 485 C 215 488 225 490 232 492" stroke-width="0.8" />
+          <path d="M 182 492 C 182 495 180 497 178 500" stroke-width="0.8" />
+        </g>
+
+        <!-- Inner Highlight (Thinner Bright Line) -->
+        <g stroke="#80eeff" stroke-linecap="round" fill="none" opacity="0.8">
+          <path d="M 178 390 C 172 415 158 440 150 480" stroke-width="0.7" />
+          <path d="M 178 390 C 184 415 198 440 205 485" stroke-width="0.7" />
+          <path d="M 178 390 C 178 420 180 450 182 492" stroke-width="0.7" />
+          <path d="M 174 410 C 155 425 130 435 115 455" stroke-width="0.5" />
+          <path d="M 182 410 C 200 425 225 435 240 455" stroke-width="0.5" />
+        </g>
+      </g>
+
+      <!-- ─── STEM GROUP (Neon Green Color Scheme) ────────────────────────────── -->
+      <g id="stem" class="clickable-part pulse-stem" onclick="pick('Stem', '#39ff6a')">
+        <!-- Wide outer glow (5.5px, low opacity) -->
+        <path d="M 178 390 Q 170 231 178 72" fill="none" stroke="#00c840" stroke-width="5.5" opacity="0.25" filter="url(#fGreen)" />
+        <!-- Bright core (2.2px) -->
+        <path d="M 178 390 Q 170 231 178 72" fill="none" stroke="#39ff6a" stroke-width="2.2" stroke-linecap="round" filter="url(#fGreen)" />
+        <!-- Thin inner highlight (0.6px, 70% opacity) -->
+        <path d="M 178 390 Q 170 231 178 72" fill="none" stroke="#b0ffcc" stroke-width="0.6" stroke-linecap="round" opacity="0.7" />
+      </g>
+
+      <!-- ─── LEAVES GROUPS (Neon Green Color Scheme) ─────────────────────────── -->
+      
+      <!-- Lower Left Leaf -->
+      <g id="leaf-ll" class="clickable-part pulse-leaf-ll" onclick="pick('Leaf', '#39ff6a')">
+        <!-- Outline Outer Glow underlay -->
+        <path d="M 175 310 C 130 330 110 320 120 290 C 145 285 165 295 175 310 Z" fill="none" stroke="#00c840" stroke-width="2.8" opacity="0.4" filter="url(#fGreen)" />
+        <!-- Outline Bright Core -->
+        <path d="M 175 310 C 130 330 110 320 120 290 C 145 285 165 295 175 310 Z" fill="none" stroke="#39ff6a" stroke-width="1.6" filter="url(#fGreen)" />
+        <!-- Outline Inner Highlight -->
+        <path d="M 175 310 C 130 330 110 320 120 290 C 145 285 165 295 175 310 Z" fill="none" stroke="#b0ffcc" stroke-width="0.6" opacity="0.7" />
+        <!-- Midrib -->
+        <path d="M 175 310 Q 145 302 120 290" fill="none" stroke="#80ffaa" stroke-width="1.3" filter="url(#fGreen)" />
+        <!-- Vein Lines -->
+        <path d="M 158 303 Q 153 293 145 292" fill="none" stroke="#39ff6a" stroke-width="0.8" />
+        <path d="M 143 298 Q 139 288 131 288" fill="none" stroke="#39ff6a" stroke-width="0.8" />
+        <path d="M 163 306 Q 160 312 153 315" fill="none" stroke="#39ff6a" stroke-width="0.8" />
+        <path d="M 148 300 Q 145 306 138 309" fill="none" stroke="#39ff6a" stroke-width="0.8" />
+      </g>
+
+      <!-- Lower Right Leaf -->
+      <g id="leaf-rl" class="clickable-part pulse-leaf-rl" onclick="pick('Leaf', '#39ff6a')">
+        <!-- Outline Outer Glow underlay -->
+        <path d="M 181 310 C 226 330 246 320 236 290 C 211 285 191 295 181 310 Z" fill="none" stroke="#00c840" stroke-width="2.8" opacity="0.4" filter="url(#fGreen)" />
+        <!-- Outline Bright Core -->
+        <path d="M 181 310 C 226 330 246 320 236 290 C 211 285 191 295 181 310 Z" fill="none" stroke="#39ff6a" stroke-width="1.6" filter="url(#fGreen)" />
+        <!-- Outline Inner Highlight -->
+        <path d="M 181 310 C 226 330 246 320 236 290 C 211 285 191 295 181 310 Z" fill="none" stroke="#b0ffcc" stroke-width="0.6" opacity="0.7" />
+        <!-- Midrib -->
+        <path d="M 181 310 Q 211 302 236 290" fill="none" stroke="#80ffaa" stroke-width="1.3" filter="url(#fGreen)" />
+        <!-- Vein Lines -->
+        <path d="M 198 303 Q 203 293 211 292" fill="none" stroke="#39ff6a" stroke-width="0.8" />
+        <path d="M 213 298 Q 217 288 225 288" fill="none" stroke="#39ff6a" stroke-width="0.8" />
+        <path d="M 193 306 Q 196 312 203 315" fill="none" stroke="#39ff6a" stroke-width="0.8" />
+        <path d="M 208 300 Q 211 306 218 309" fill="none" stroke="#39ff6a" stroke-width="0.8" />
+      </g>
+
+      <!-- Mid Left Leaf -->
+      <g id="leaf-lm" class="clickable-part pulse-leaf-lm" onclick="pick('Leaf', '#39ff6a')">
+        <!-- Outline Outer Glow underlay -->
+        <path d="M 175 255 C 120 275 95 265 110 235 C 138 230 160 240 175 255 Z" fill="none" stroke="#00c840" stroke-width="2.8" opacity="0.4" filter="url(#fGreen)" />
+        <!-- Outline Bright Core -->
+        <path d="M 175 255 C 120 275 95 265 110 235 C 138 230 160 240 175 255 Z" fill="none" stroke="#39ff6a" stroke-width="1.6" filter="url(#fGreen)" />
+        <!-- Outline Inner Highlight -->
+        <path d="M 175 255 C 120 275 95 265 110 235 C 138 230 160 240 175 255 Z" fill="none" stroke="#b0ffcc" stroke-width="0.6" opacity="0.7" />
+        <!-- Midrib -->
+        <path d="M 175 255 Q 140 243 110 235" fill="none" stroke="#80ffaa" stroke-width="1.3" filter="url(#fGreen)" />
+        <!-- Vein Lines -->
+        <path d="M 155 249 Q 150 238 140 237" fill="none" stroke="#39ff6a" stroke-width="0.8" />
+        <path d="M 137 243 Q 132 232 122 232" fill="none" stroke="#39ff6a" stroke-width="0.8" />
+        <path d="M 160 252 Q 157 259 148 262" fill="none" stroke="#39ff6a" stroke-width="0.8" />
+        <path d="M 143 246 Q 139 253 130 256" fill="none" stroke="#39ff6a" stroke-width="0.8" />
+      </g>
+
+      <!-- Mid Right Leaf -->
+      <g id="leaf-rm" class="clickable-part pulse-leaf-rm" onclick="pick('Leaf', '#39ff6a')">
+        <!-- Outline Outer Glow underlay -->
+        <path d="M 181 255 C 236 275 261 265 246 235 C 218 230 196 240 181 255 Z" fill="none" stroke="#00c840" stroke-width="2.8" opacity="0.4" filter="url(#fGreen)" />
+        <!-- Outline Bright Core -->
+        <path d="M 181 255 C 236 275 261 265 246 235 C 218 230 196 240 181 255 Z" fill="none" stroke="#39ff6a" stroke-width="1.6" filter="url(#fGreen)" />
+        <!-- Outline Inner Highlight -->
+        <path d="M 181 255 C 236 275 261 265 246 235 C 218 230 196 240 181 255 Z" fill="none" stroke="#b0ffcc" stroke-width="0.6" opacity="0.7" />
+        <!-- Midrib -->
+        <path d="M 181 255 Q 216 243 246 235" fill="none" stroke="#80ffaa" stroke-width="1.3" filter="url(#fGreen)" />
+        <!-- Vein Lines -->
+        <path d="M 201 249 Q 206 238 216 237" fill="none" stroke="#39ff6a" stroke-width="0.8" />
+        <path d="M 219 243 Q 224 232 234 232" fill="none" stroke="#39ff6a" stroke-width="0.8" />
+        <path d="M 196 252 Q 199 259 208 262" fill="none" stroke="#39ff6a" stroke-width="0.8" />
+        <path d="M 213 246 Q 217 253 226 256" fill="none" stroke="#39ff6a" stroke-width="0.8" />
+      </g>
+
+      <!-- Upper Left Leaf -->
+      <g id="leaf-lu" class="clickable-part pulse-leaf-lu" onclick="pick('Leaf', '#39ff6a')">
+        <!-- Outline Outer Glow underlay -->
+        <path d="M 175 198 C 130 215 110 207 120 182 C 143 178 162 186 175 198 Z" fill="none" stroke="#00c840" stroke-width="2.6" opacity="0.4" filter="url(#fGreen)" />
+        <!-- Outline Bright Core -->
+        <path d="M 175 198 C 130 215 110 207 120 182 C 143 178 162 186 175 198 Z" fill="none" stroke="#39ff6a" stroke-width="1.4" filter="url(#fGreen)" />
+        <!-- Outline Inner Highlight -->
+        <path d="M 175 198 C 130 215 110 207 120 182 C 143 178 162 186 175 198 Z" fill="none" stroke="#b0ffcc" stroke-width="0.5" opacity="0.7" />
+        <!-- Midrib -->
+        <path d="M 175 198 Q 145 188 120 182" fill="none" stroke="#80ffaa" stroke-width="1.2" filter="url(#fGreen)" />
+        <!-- Vein Lines -->
+        <path d="M 157 192 Q 153 183 145 183" fill="none" stroke="#39ff6a" stroke-width="0.7" />
+        <path d="M 160 196 Q 157 202 150 204" fill="none" stroke="#39ff6a" stroke-width="0.7" />
+      </g>
+
+      <!-- Upper Right Leaf -->
+      <g id="leaf-ru" class="clickable-part pulse-leaf-ru" onclick="pick('Leaf', '#39ff6a')">
+        <!-- Outline Outer Glow underlay -->
+        <path d="M 181 198 C 226 215 246 207 236 182 C 213 178 194 186 181 198 Z" fill="none" stroke="#00c840" stroke-width="2.6" opacity="0.4" filter="url(#fGreen)" />
+        <!-- Outline Bright Core -->
+        <path d="M 181 198 C 226 215 246 207 236 182 C 213 178 194 186 181 198 Z" fill="none" stroke="#39ff6a" stroke-width="1.4" filter="url(#fGreen)" />
+        <!-- Outline Inner Highlight -->
+        <path d="M 181 198 C 226 215 246 207 236 182 C 213 178 194 186 181 198 Z" fill="none" stroke="#b0ffcc" stroke-width="0.5" opacity="0.7" />
+        <!-- Midrib -->
+        <path d="M 181 198 Q 211 188 236 182" fill="none" stroke="#80ffaa" stroke-width="1.2" filter="url(#fGreen)" />
+        <!-- Vein Lines -->
+        <path d="M 199 192 Q 203 183 211 183" fill="none" stroke="#39ff6a" stroke-width="0.7" />
+        <path d="M 196 196 Q 199 202 206 204" fill="none" stroke="#39ff6a" stroke-width="0.7" />
+      </g>
+
+      <!-- ─── FRUIT GROUP (Cherry/Tomato — Neon Red Color Scheme) ────────────── -->
+      <g id="fruit" class="clickable-part pulse-fruit" onclick="pick('Fruit', '#ff2a2a')">
+        <!-- Cherry side branch stem (neon green outlines) -->
+        <path d="M 170 285 Q 148 290 134 254" fill="none" stroke="#00c840" stroke-width="2.5" opacity="0.3" filter="url(#fGreen)" />
+        <path d="M 170 285 Q 148 290 134 254" fill="none" stroke="#39ff6a" stroke-width="1.2" />
+
+        <!-- Calyx at top of cherry (leaf crown) -->
+        <path d="M 134 245 L 131 240 M 134 245 L 137 240 M 134 245 Q 134 238 136 238" fill="none" stroke="#00c840" stroke-width="1.5" filter="url(#fGreen)" />
+        <path d="M 134 245 L 131 240 M 134 245 L 137 240 M 134 245 Q 134 238 136 238" fill="none" stroke="#39ff6a" stroke-width="0.7" />
+
+        <!-- Cherry body outer red glow underlay -->
+        <circle cx="134" cy="254" r="14" fill="none" stroke="#cc0000" stroke-width="4.0" opacity="0.35" filter="url(#fFruit)" />
+        <!-- Cherry body bright red core circle -->
+        <circle cx="134" cy="254" r="12.5" fill="none" stroke="#ff2a2a" stroke-width="1.8" filter="url(#fFruit)" />
+        <!-- Cherry body specular highlight arc -->
+        <path d="M 126.5 251.5 A 7.5 7.5 0 0 1 138.5 245.5" fill="none" stroke="#ff8888" stroke-width="0.9" stroke-linecap="round" />
+      </g>
+
+      <!-- ─── FLOWER GROUP (Rose — Neon Amber/Orange/Yellow Scheme) ───────────── -->
+      <g id="flower" class="clickable-part pulse-flower" onclick="pick('Flower', '#f0b800')">
+        <!-- ─── LAYER 3: Outermost petals ─── -->
+        <!-- Outer glow layer -->
+        <g stroke="#cc9900" stroke-width="3.2" stroke-opacity="0.4" filter="url(#fFlower)">
+          <use href="#outer-petal" x="178" y="58" />
+          <use href="#outer-petal" x="178" y="58" transform="rotate(72, 178, 58)" />
+          <use href="#outer-petal" x="178" y="58" transform="rotate(144, 178, 58)" />
+          <use href="#outer-petal" x="178" y="58" transform="rotate(216, 178, 58)" />
+          <use href="#outer-petal" x="178" y="58" transform="rotate(288, 178, 58)" />
+        </g>
+        <!-- Outer bright core layer -->
+        <g stroke="#f0b800" stroke-width="1.8" stroke-opacity="0.8" filter="url(#fFlower)">
+          <use href="#outer-petal" x="178" y="58" />
+          <use href="#outer-petal" x="178" y="58" transform="rotate(72, 178, 58)" />
+          <use href="#outer-petal" x="178" y="58" transform="rotate(144, 178, 58)" />
+          <use href="#outer-petal" x="178" y="58" transform="rotate(216, 178, 58)" />
+          <use href="#outer-petal" x="178" y="58" transform="rotate(288, 178, 58)" />
+        </g>
+        <!-- Outer thin inner highlight -->
+        <g stroke="#ffe066" stroke-width="0.6" stroke-opacity="0.7">
+          <use href="#outer-petal" x="178" y="58" />
+          <use href="#outer-petal" x="178" y="58" transform="rotate(72, 178, 58)" />
+          <use href="#outer-petal" x="178" y="58" transform="rotate(144, 178, 58)" />
+          <use href="#outer-petal" x="178" y="58" transform="rotate(216, 178, 58)" />
+          <use href="#outer-petal" x="178" y="58" transform="rotate(288, 178, 58)" />
+        </g>
+
+        <!-- ─── LAYER 2: Mid petals (Interleaved by 36 degrees) ─── -->
+        <!-- Mid glow layer -->
+        <g stroke="#cc9900" stroke-width="2.6" stroke-opacity="0.4" filter="url(#fFlower)">
+          <use href="#mid-petal" x="178" y="58" transform="rotate(36, 178, 58)" />
+          <use href="#mid-petal" x="178" y="58" transform="rotate(108, 178, 58)" />
+          <use href="#mid-petal" x="178" y="58" transform="rotate(180, 178, 58)" />
+          <use href="#mid-petal" x="178" y="58" transform="rotate(252, 178, 58)" />
+          <use href="#mid-petal" x="178" y="58" transform="rotate(324, 178, 58)" />
+        </g>
+        <!-- Mid bright core layer -->
+        <g stroke="#f0b800" stroke-width="1.8" stroke-opacity="0.9" filter="url(#fFlower)">
+          <use href="#mid-petal" x="178" y="58" transform="rotate(36, 178, 58)" />
+          <use href="#mid-petal" x="178" y="58" transform="rotate(108, 178, 58)" />
+          <use href="#mid-petal" x="178" y="58" transform="rotate(180, 178, 58)" />
+          <use href="#mid-petal" x="178" y="58" transform="rotate(252, 178, 58)" />
+          <use href="#mid-petal" x="178" y="58" transform="rotate(324, 178, 58)" />
+        </g>
+        <!-- Mid thin inner highlight -->
+        <g stroke="#ffe066" stroke-width="0.6" stroke-opacity="0.8">
+          <use href="#mid-petal" x="178" y="58" transform="rotate(36, 178, 58)" />
+          <use href="#mid-petal" x="178" y="58" transform="rotate(108, 178, 58)" />
+          <use href="#mid-petal" x="178" y="58" transform="rotate(180, 178, 58)" />
+          <use href="#mid-petal" x="178" y="58" transform="rotate(252, 178, 58)" />
+          <use href="#mid-petal" x="178" y="58" transform="rotate(324, 178, 58)" />
+        </g>
+
+        <!-- ─── LAYER 1: Innermost petals ─── -->
+        <!-- Inner glow layer -->
+        <g stroke="#f0b800" stroke-width="2.2" stroke-opacity="0.5" filter="url(#fFlower)">
+          <use href="#inner-petal" x="178" y="58" transform="rotate(0, 178, 58)" />
+          <use href="#inner-petal" x="178" y="58" transform="rotate(72, 178, 58)" />
+          <use href="#inner-petal" x="178" y="58" transform="rotate(144, 178, 58)" />
+          <use href="#inner-petal" x="178" y="58" transform="rotate(216, 178, 58)" />
+          <use href="#inner-petal" x="178" y="58" transform="rotate(288, 178, 58)" />
+        </g>
+        <!-- Inner bright core layer -->
+        <g stroke="#ffe066" stroke-width="1.8" stroke-opacity="1.0" filter="url(#fFlower)">
+          <use href="#inner-petal" x="178" y="58" transform="rotate(0, 178, 58)" />
+          <use href="#inner-petal" x="178" y="58" transform="rotate(72, 178, 58)" />
+          <use href="#inner-petal" x="178" y="58" transform="rotate(144, 178, 58)" />
+          <use href="#inner-petal" x="178" y="58" transform="rotate(216, 178, 58)" />
+          <use href="#inner-petal" x="178" y="58" transform="rotate(288, 178, 58)" />
+        </g>
+        <!-- Inner thin inner highlight -->
+        <g stroke="#fff5a0" stroke-width="0.6" stroke-opacity="0.9">
+          <use href="#inner-petal" x="178" y="58" transform="rotate(0, 178, 58)" />
+          <use href="#inner-petal" x="178" y="58" transform="rotate(72, 178, 58)" />
+          <use href="#inner-petal" x="178" y="58" transform="rotate(144, 178, 58)" />
+          <use href="#inner-petal" x="178" y="58" transform="rotate(216, 178, 58)" />
+          <use href="#inner-petal" x="178" y="58" transform="rotate(288, 178, 58)" />
+        </g>
+
+        <!-- ─── FLOWER CENTER (Concentric Circles + Dot) ─── -->
+        <!-- Outer center circle -->
+        <circle cx="178" cy="58" r="8" stroke="#f0b800" stroke-width="1.5" fill="none" filter="url(#fFlower)" />
+        <circle cx="178" cy="58" r="8" stroke="#ffe066" stroke-width="0.6" fill="none" />
+        <!-- Inner center circle -->
+        <circle cx="178" cy="58" r="4.2" stroke="#fff5a0" stroke-width="0.9" fill="none" />
+        <!-- Center filled dot -->
+        <circle cx="178" cy="58" r="1.5" fill="#fff5a0" />
+      </g>
+
+      <!-- ─── DECORATIVE LOGO (Rhombus In Bottom-Right Corner) ───────────────── -->
+      <g transform="translate(320, 490)" opacity="0.6" stroke="#00c840" stroke-width="1.2" fill="none">
+        <!-- Outer Rhombus -->
+        <polygon points="0,-12 12,0 0,12 -12,0" />
+        <!-- Inner Rhombus -->
+        <polygon points="0,-6 6,0 0,6 -6,0" stroke="#39ff6a" stroke-width="0.8" />
+        <!-- Micro Core Dot -->
+        <circle cx="0" cy="0" r="1.5" fill="#b0ffcc" stroke="none" />
+      </g>
+    </svg>
+
+    <div id="info"></div>
+  </div>
+
+  <script>
+    // ─── PART TO DOM ELEMENT MAPPINGS ───────────────────────────────────────
+    const groupMapping = {
+      'Root': ['roots'],
+      'Stem': ['stem'],
+      'Leaf': ['leaf-ll', 'leaf-rl', 'leaf-lm', 'leaf-rm', 'leaf-lu', 'leaf-ru'],
+      'Fruit': ['fruit'],
+      'Flower': ['flower']
+    };
+
+    const allGroupIds = [
+      'roots', 'stem', 'leaf-ll', 'leaf-rl', 'leaf-lm', 
+      'leaf-rm', 'leaf-lu', 'leaf-ru', 'fruit', 'flower'
+    ];
+
+    let resetTimeout = null;
+
+    // ─── PICK FUNCTION (Interactive Hotspot Tap) ───────────────────────────
+    function pick(partName, colorHex) {
+      // Clear any pending restoration timer
+      if (resetTimeout) {
+        clearTimeout(resetTimeout);
+      }
+
+      const svgElement = document.getElementById('plant-svg');
+      const infoElement = document.getElementById('info');
+      const containerElement = document.getElementById('container');
+      const statusElement = document.getElementById('status');
+
+      const activeIds = groupMapping[partName] || [];
+
+      // 1. Enter Selection Mode on the SVG
+      svgElement.classList.add('selected-mode');
+
+      // 2. Classify elements as highlighted or dimmed
+      allGroupIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (activeIds.includes(id)) {
+            el.classList.add('highlighted');
+          } else {
+            el.classList.remove('highlighted');
+          }
+        }
+      });
+
+      // 3. Render Status Confirmation Label in color matching the neon light
+      infoElement.textContent = `[${partName}] selected — tap to capture image`;
+      infoElement.style.color = colorHex;
+      infoElement.style.textShadow = `0 0 10px ${colorHex}, 0 0 20px ${colorHex}`;
+
+      // Enhance container borders during active highlight selection
+      containerElement.style.borderColor = colorHex;
+      containerElement.style.boxShadow = `0 12px 40px rgba(0, 0, 0, 0.9), 
+                                           0 0 35px ${colorHex}25,
+                                           inset 0 1px 1px rgba(255, 255, 255, 0.03)`;
+      statusElement.style.color = colorHex;
+
+      // 4. Restore everything after 2500ms
+      resetTimeout = setTimeout(() => {
+        // Exit Selection Mode
+        svgElement.classList.remove('selected-mode');
+
+        // Remove active highlighted status classes
+        allGroupIds.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.classList.remove('highlighted');
+          }
+        });
+
+        // Reset info elements and styling back to baseline
+        infoElement.textContent = '';
+        infoElement.style.color = '';
+        infoElement.style.textShadow = '';
+
+        containerElement.style.borderColor = '';
+        containerElement.style.boxShadow = '';
+        statusElement.style.color = '';
+      }, 2500);
+    }
+  </script>
+</body>
+</html>
