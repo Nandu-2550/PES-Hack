@@ -3,39 +3,34 @@ import { Phone, Check, X } from 'lucide-react';
 
 const MachineryCard = ({ equipment, isOwner, onToggleAvailable, onDelete }) => {
   return (
-    <div className="surface-card">
+    <div className="card card-hover p-4">
       <div className="flex justify-between items-center mb-2">
-        <h3 style={{ margin: 0 }}>{equipment.category}</h3>
-        <span style={{ 
-          backgroundColor: equipment.available ? 'var(--primary-color)' : '#444', 
-          padding: '4px 8px', 
-          borderRadius: '4px',
-          fontSize: '12px'
-        }}>
+        <h3 className="text-white font-semibold text-base leading-snug" style={{ margin: 0 }}>{equipment.category}</h3>
+        <span className={equipment.available ? 'badge-available' : 'badge-sold'}>
           {equipment.available ? 'Available' : 'Unavailable'}
         </span>
       </div>
       
-      {equipment.brand && <p className="mb-1" style={{ fontSize: '14px' }}><strong>Brand:</strong> {equipment.brand}</p>}
-      <p className="mb-2" style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+      {equipment.brand && <p className="mb-1 text-sm text-slate-300"><strong>Brand:</strong> {equipment.brand}</p>}
+      <p className="mb-2 text-sm text-slate-400">
         {equipment.description || "No description provided."}
       </p>
 
       <div className="mb-3">
-        <span style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--text-highlight)' }}>
+        <span className="text-emerald-400 font-bold text-lg">
           ₹{equipment.pricePerDay}
         </span>
-        <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}> / day</span>
+        <span className="text-slate-500 text-xs"> / day</span>
       </div>
 
-      <p className="mb-2" style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+      <p className="mb-2 text-xs text-slate-500">
         Owner: {equipment.owner?.name || 'Unknown'} • {equipment.district}
       </p>
 
       {isOwner ? (
         <div className="flex gap-2">
           <button 
-            className="btn-secondary flex items-center justify-center gap-2" 
+            className="btn-outline flex items-center justify-center gap-2 flex-1" 
             style={{ padding: '8px' }}
             onClick={() => onToggleAvailable(equipment._id)}
           >
@@ -43,8 +38,8 @@ const MachineryCard = ({ equipment, isOwner, onToggleAvailable, onDelete }) => {
             {equipment.available ? 'Mark Unavailable' : 'Mark Available'}
           </button>
           <button 
-            className="btn-secondary flex items-center justify-center"
-            style={{ padding: '8px', color: '#ff4d4d', borderColor: '#ff4d4d', width: 'auto', flex: 1 }}
+            className="border border-red-500/20 text-red-400 hover:bg-red-500/8 hover:border-red-500/40 rounded-xl px-3 py-2 text-xs transition-all duration-200 flex items-center justify-center"
+            style={{ padding: '8px', width: 'auto' }}
             onClick={() => onDelete(equipment._id)}
           >
             Delete
@@ -53,7 +48,7 @@ const MachineryCard = ({ equipment, isOwner, onToggleAvailable, onDelete }) => {
       ) : (
         <a 
           href={`tel:${equipment.contactPhone}`} 
-          className="btn-primary flex items-center justify-center gap-2"
+          className="btn-primary flex items-center justify-center gap-2 w-full text-center"
           style={{ display: 'flex', textDecoration: 'none' }}
         >
           <Phone size={18} /> Call Owner

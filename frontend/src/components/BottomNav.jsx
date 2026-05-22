@@ -11,11 +11,13 @@ const BottomNav = () => {
       transform: 'translateX(-50%)',
       width: '100%',
       maxWidth: '430px',
-      backgroundColor: 'var(--surface-color)',
+      backgroundColor: 'rgba(19, 25, 28, 0.8)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
       display: 'flex',
       justifyContent: 'space-around',
       padding: '12px 0',
-      borderTop: '1px solid #000',
+      borderTop: '1px solid rgba(255, 255, 255, 0.05)',
       zIndex: 1000
     }}>
       <NavItem to="/dashboard" icon={<Home size={24} />} label="Home" />

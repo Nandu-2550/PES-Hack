@@ -108,29 +108,26 @@ const JobBoard = () => {
   const filteredJobs = workFilter ? jobs.filter(j => j.workType === workFilter) : jobs;
 
   return (
-    <div className="page-container">
-      <h1 className="mb-1">Job Board</h1>
+    <div className="page-container pb-20">
+      <h1 className="text-white text-3xl font-extrabold mb-1">Job Board</h1>
       <SyncBadge syncedAt={syncedAt} isStale={isStale} />
       
       {/* View Toggles */}
-      <div className="flex gap-2 mb-3">
+      <div className="flex bg-[#13191C] border border-white/5 rounded-xl p-1 gap-1 mb-5">
         <button 
-          className={view === 'feed' ? 'btn-primary' : 'btn-secondary'} 
-          style={{ padding: '8px' }}
+          className={`flex-1 py-2 px-3 text-sm font-semibold rounded-lg transition-all duration-150 ${view === 'feed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`} 
           onClick={() => setView('feed')}
         >
           Job Feed
         </button>
         <button 
-          className={view === 'my' ? 'btn-primary' : 'btn-secondary'} 
-          style={{ padding: '8px' }}
+          className={`flex-1 py-2 px-3 text-sm font-semibold rounded-lg transition-all duration-150 ${view === 'my' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`} 
           onClick={() => setView('my')}
         >
           My Posts
         </button>
         <button 
-          className={view === 'post' ? 'btn-primary' : 'btn-secondary'} 
-          style={{ padding: '8px' }}
+          className={`flex-1 py-2 px-3 text-sm font-semibold rounded-lg transition-all duration-150 ${view === 'post' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`} 
           onClick={() => setView('post')}
         >
           + Post Job
@@ -142,30 +139,36 @@ const JobBoard = () => {
           <select 
             value={workFilter} 
             onChange={(e) => setWorkFilter(e.target.value)}
-            className="mb-3"
+            className="input-field mb-4"
           >
-            <option value="">All Work Types</option>
-            <option value="Harvesting">Harvesting</option>
-            <option value="Weeding">Weeding</option>
-            <option value="Planting">Planting</option>
-            <option value="Irrigation">Irrigation</option>
-            <option value="Spraying">Spraying</option>
-            <option value="General">General</option>
+            <option value="" className="bg-[#13191C]">All Work Types</option>
+            <option value="Harvesting" className="bg-[#13191C]">Harvesting</option>
+            <option value="Weeding" className="bg-[#13191C]">Weeding</option>
+            <option value="Planting" className="bg-[#13191C]">Planting</option>
+            <option value="Irrigation" className="bg-[#13191C]">Irrigation</option>
+            <option value="Spraying" className="bg-[#13191C]">Spraying</option>
+            <option value="General" className="bg-[#13191C]">General</option>
           </select>
 
-          {filteredJobs.length === 0 && <p className="text-center">No jobs found.</p>}
-          {filteredJobs.map(job => (
-            <JobCard key={job._id} job={job} isOwner={false} />
-          ))}
+          {filteredJobs.length === 0 && <p className="text-slate-500 text-center py-8 text-sm">No jobs found.</p>}
+          <div className="space-y-3">
+            {filteredJobs.map(job => (
+              <JobCard key={job._id} job={job} isOwner={false} />
+            ))}
+          </div>
         </>
       )}
 
       {view === 'my' && (
-        <>
-          {myJobs.length === 0 && <p className="text-center">You haven't posted any jobs.</p>}
+        <div className="space-y-3">
+          {myJobs.length === 0 && <p className="text-slate-500 text-center py-8 text-sm">You haven't posted any jobs.</p>}
           {myJobs.map(job => (
             <div key={job._id} style={{ opacity: job.status === 'completed' ? 0.5 : 1 }}>
-              {job.status === 'completed' && <span style={{ color: 'yellow', fontSize: '12px' }}>Completed</span>}
+              {job.status === 'completed' && (
+                <span className="inline-block bg-yellow-500/10 text-yellow-400 text-xs font-semibold px-2 py-0.5 rounded border border-yellow-500/20 mb-2">
+                  Completed
+                </span>
+              )}
               <JobCard 
                 job={job} 
                 isOwner={true} 
@@ -174,73 +177,77 @@ const JobBoard = () => {
               />
             </div>
           ))}
-        </>
+        </div>
       )}
 
       {view === 'post' && (
-        <div className="surface-card">
-          <h2 className="mb-2">Post a New Job</h2>
+        <div className="card p-6 shadow-glow-md">
+          <h2 className="text-white text-xl font-bold mb-4">Post a New Job</h2>
           <form onSubmit={handlePostSubmit}>
-            <label className="mb-1 block">Work Type</label>
+            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Work Type</label>
             <select 
               value={formData.workType} 
               onChange={(e) => setFormData({...formData, workType: e.target.value})}
+              className="input-field mb-4"
             >
-              <option value="Harvesting">Harvesting</option>
-              <option value="Weeding">Weeding</option>
-              <option value="Planting">Planting</option>
-              <option value="Irrigation">Irrigation</option>
-              <option value="Spraying">Spraying</option>
-              <option value="General">General</option>
+              <option value="Harvesting" className="bg-[#13191C]">Harvesting</option>
+              <option value="Weeding" className="bg-[#13191C]">Weeding</option>
+              <option value="Planting" className="bg-[#13191C]">Planting</option>
+              <option value="Irrigation" className="bg-[#13191C]">Irrigation</option>
+              <option value="Spraying" className="bg-[#13191C]">Spraying</option>
+              <option value="General" className="bg-[#13191C]">General</option>
             </select>
 
-            <div className="flex gap-2">
-              <div style={{ flex: 1 }}>
-                <label className="mb-1 block">Workers Needed</label>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div>
+                <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Workers Needed</label>
                 <input 
                   type="number" min="1" required 
                   value={formData.workersNeeded}
                   onChange={(e) => setFormData({...formData, workersNeeded: e.target.value})}
+                  className="input-field"
                 />
               </div>
-              <div style={{ flex: 1 }}>
-                <label className="mb-1 block">Duration (Days)</label>
+              <div>
+                <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Duration (Days)</label>
                 <input 
                   type="number" min="1" required 
                   value={formData.durationDays}
                   onChange={(e) => setFormData({...formData, durationDays: e.target.value})}
+                  className="input-field"
                 />
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <div style={{ flex: 1 }}>
-                <label className="mb-1 block">Salary Amount (₹)</label>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div>
+                <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Salary Amount (₹)</label>
                 <input 
                   type="number" min="1" required 
                   value={formData.salaryAmount}
                   onChange={(e) => setFormData({...formData, salaryAmount: e.target.value})}
+                  className="input-field"
                 />
               </div>
-              <div style={{ flex: 1 }}>
-                <label className="mb-1 block">Salary Type</label>
+              <div>
+                <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Salary Type</label>
                 <select 
                   value={formData.salaryType}
                   onChange={(e) => setFormData({...formData, salaryType: e.target.value})}
+                  className="input-field"
                 >
-                  <option value="per_day">Per Day</option>
-                  <option value="contract">Total Contract</option>
+                  <option value="per_day" className="bg-[#13191C]">Per Day</option>
+                  <option value="contract" className="bg-[#13191C]">Total Contract</option>
                 </select>
               </div>
             </div>
 
-            <label className="mb-1 block">Amenities Provided</label>
-            <div className="flex gap-2 mb-3">
+            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Amenities Provided</label>
+            <div className="flex gap-2 mb-6">
               {amenitiesList.map(a => (
                 <button
                   key={a} type="button"
-                  className={formData.amenities.includes(a) ? "btn-primary" : "btn-secondary"}
-                  style={{ padding: '4px 8px', width: 'auto', fontSize: '14px' }}
+                  className={`flex-1 py-2 px-3 text-sm font-semibold rounded-xl transition-all duration-150 ${formData.amenities.includes(a) ? "bg-emerald-500 text-black shadow-glow-sm" : "bg-[#1A2228] text-slate-300 border border-white/5 hover:bg-[#222D35]"}`}
                   onClick={() => handleAmenityToggle(a)}
                 >
                   {a}
@@ -248,7 +255,7 @@ const JobBoard = () => {
               ))}
             </div>
 
-            <button type="submit" className="btn-primary">Post Job</button>
+            <button type="submit" className="btn-primary w-full py-3.5 mt-2">Post Job</button>
           </form>
         </div>
       )}

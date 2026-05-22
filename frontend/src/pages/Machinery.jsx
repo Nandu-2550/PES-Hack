@@ -93,28 +93,25 @@ const Machinery = () => {
   const filteredList = categoryFilter ? equipmentList.filter(e => e.category === categoryFilter) : equipmentList;
 
   return (
-    <div className="page-container">
-      <h1 className="mb-1">Rent Machinery</h1>
+    <div className="page-container pb-20">
+      <h1 className="text-white text-3xl font-extrabold mb-1">Rent Machinery</h1>
       <SyncBadge syncedAt={syncedAt} isStale={isStale} />
 
-      <div className="flex gap-2 mb-3">
+      <div className="flex bg-[#13191C] border border-white/5 rounded-xl p-1 gap-1 mb-5">
         <button 
-          className={view === 'browse' ? 'btn-primary' : 'btn-secondary'} 
-          style={{ padding: '8px' }}
+          className={`flex-1 py-2 px-3 text-sm font-semibold rounded-lg transition-all duration-150 ${view === 'browse' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`} 
           onClick={() => setView('browse')}
         >
           Browse
         </button>
         <button 
-          className={view === 'my' ? 'btn-primary' : 'btn-secondary'} 
-          style={{ padding: '8px' }}
+          className={`flex-1 py-2 px-3 text-sm font-semibold rounded-lg transition-all duration-150 ${view === 'my' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`} 
           onClick={() => setView('my')}
         >
           My Machinery
         </button>
         <button 
-          className={view === 'add' ? 'btn-primary' : 'btn-secondary'} 
-          style={{ padding: '8px' }}
+          className={`flex-1 py-2 px-3 text-sm font-semibold rounded-lg transition-all duration-150 ${view === 'add' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`} 
           onClick={() => setView('add')}
         >
           + Add
@@ -123,10 +120,9 @@ const Machinery = () => {
 
       {view === 'browse' && (
         <>
-          <div className="flex gap-2 mb-3" style={{ overflowX: 'auto', paddingBottom: '8px' }}>
+          <div className="flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-none">
             <button 
-              className={categoryFilter === '' ? "btn-primary" : "btn-secondary"}
-              style={{ width: 'auto', padding: '4px 12px', whiteSpace: 'nowrap' }}
+              className={`text-xs font-semibold px-4 py-2 rounded-full transition-all ${categoryFilter === '' ? "bg-emerald-500 text-black shadow-glow-sm" : "bg-[#13191C] text-slate-300 border border-white/5 hover:bg-[#1A2228] hover:text-white"}`}
               onClick={() => setCategoryFilter('')}
             >
               All
@@ -134,8 +130,8 @@ const Machinery = () => {
             {categories.map(c => (
               <button 
                 key={c}
-                className={categoryFilter === c ? "btn-primary" : "btn-secondary"}
-                style={{ width: 'auto', padding: '4px 12px', whiteSpace: 'nowrap' }}
+                className={`text-xs font-semibold px-4 py-2 rounded-full transition-all ${categoryFilter === c ? "bg-emerald-500 text-black shadow-glow-sm" : "bg-[#13191C] text-slate-300 border border-white/5 hover:bg-[#1A2228] hover:text-white"}`}
+                style={{ whiteSpace: 'nowrap' }}
                 onClick={() => setCategoryFilter(c)}
               >
                 {c}
@@ -143,16 +139,18 @@ const Machinery = () => {
             ))}
           </div>
 
-          {filteredList.length === 0 && <p className="text-center">No equipment found.</p>}
-          {filteredList.map(item => (
-            <MachineryCard key={item._id} equipment={item} isOwner={false} />
-          ))}
+          {filteredList.length === 0 && <p className="text-slate-500 text-center py-8 text-sm">No equipment found.</p>}
+          <div className="space-y-3">
+            {filteredList.map(item => (
+              <MachineryCard key={item._id} equipment={item} isOwner={false} />
+            ))}
+          </div>
         </>
       )}
 
       {view === 'my' && (
-        <>
-          {myEquipment.length === 0 && <p className="text-center">You haven't listed any equipment.</p>}
+        <div className="space-y-3">
+          {myEquipment.length === 0 && <p className="text-slate-500 text-center py-8 text-sm">You haven't listed any equipment.</p>}
           {myEquipment.map(item => (
             <div key={item._id} style={{ opacity: item.available ? 1 : 0.6 }}>
               <MachineryCard 
@@ -163,52 +161,57 @@ const Machinery = () => {
               />
             </div>
           ))}
-        </>
+        </div>
       )}
 
       {view === 'add' && (
-        <div className="surface-card">
-          <h2 className="mb-2">List Equipment</h2>
+        <div className="card p-6 shadow-glow-md">
+          <h2 className="text-white text-xl font-bold mb-4">List Equipment</h2>
           <form onSubmit={handleSubmit}>
-            <label className="mb-1 block">Category</label>
+            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Category</label>
             <select 
               value={formData.category} 
               onChange={(e) => setFormData({...formData, category: e.target.value})}
+              className="input-field mb-4"
             >
-              {categories.map(c => <option key={c} value={c}>{c}</option>)}
+              {categories.map(c => <option key={c} value={c} className="bg-[#13191C]">{c}</option>)}
             </select>
 
-            <label className="mb-1 block">Brand (Optional)</label>
+            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Brand (Optional)</label>
             <input 
               type="text" 
               placeholder="e.g. Mahindra, John Deere"
               value={formData.brand}
               onChange={(e) => setFormData({...formData, brand: e.target.value})}
+              className="input-field mb-4"
             />
 
-            <label className="mb-1 block">Description</label>
+            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Description</label>
             <input 
               type="text" 
               placeholder="Year, condition, attachments..."
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className="input-field mb-4"
             />
 
-            <label className="mb-1 block">Price Per Day (₹)</label>
+            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Price Per Day (₹)</label>
             <input 
               type="number" min="1" required
               value={formData.pricePerDay}
               onChange={(e) => setFormData({...formData, pricePerDay: e.target.value})}
+              className="input-field mb-4"
             />
 
-            <label className="mb-1 block">Contact Phone</label>
+            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Contact Phone</label>
             <input 
               type="tel" required pattern="[0-9]{10}"
               value={formData.contactPhone}
               onChange={(e) => setFormData({...formData, contactPhone: e.target.value})}
+              className="input-field mb-5"
             />
 
-            <button type="submit" className="btn-primary">List Equipment</button>
+            <button type="submit" className="btn-primary w-full py-3.5 mt-2">List Equipment</button>
           </form>
         </div>
       )}

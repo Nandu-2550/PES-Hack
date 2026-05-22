@@ -164,17 +164,27 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="page-container flex-col items-center justify-center" style={{ minHeight: '100vh', paddingBottom: 0 }}>
-      <h1 className="mb-3 text-center" style={{ fontSize: '32px' }}>AgriShield AI</h1>
+    <div className="page-container flex flex-col items-center justify-center min-h-screen bg-[#0B0F12] text-slate-200 px-4 py-8">
+      
+      <div className="flex flex-col items-center mb-8">
+        <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shadow-glow-md mb-3 animate-pulse">
+          <svg className="w-8 h-8 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M14 12a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </div>
+        <h1 className="text-white text-3xl font-extrabold tracking-tight">AgriShield AI</h1>
+        <p className="text-slate-400 text-xs mt-1">Smart On-Device Disease Diagnosis</p>
+      </div>
 
-      <div className="surface-card w-full" style={{ width: '100%', position: 'relative', zIndex: 1 }}>
-        <h2 className="mb-3">{isLogin ? 'Login' : 'Register'}</h2>
+      <div className="card w-full max-w-md p-8 shadow-glow-lg border border-white/5 relative z-10">
+        <h2 className="text-white text-2xl font-bold mb-6 text-center">{isLogin ? 'Welcome Back' : 'Create Account'}</h2>
 
         <form onSubmit={handleSubmit}>
           {!isLogin && (
             <input
               type="text" name="name" placeholder="Full Name" required
               value={formData.name} onChange={handleChange}
+              className="input-field mb-4"
             />
           )}
 
@@ -182,60 +192,72 @@ const Onboarding = () => {
             <input
               type="text" name="identifier" placeholder="Email or Phone Number" required
               value={formData.identifier} onChange={handleChange}
+              className="input-field mb-4"
             />
           ) : (
             <>
               <input
                 type="email" name="email" placeholder="Email Address (Optional)"
                 value={formData.email} onChange={handleChange}
+                className="input-field mb-4"
               />
               <input
                 type="tel" name="phone" placeholder="Phone Number" required
                 pattern="[0-9]{10}" title="10 digit phone number"
                 value={formData.phone} onChange={handleChange}
+                className="input-field mb-4"
               />
             </>
           )}
 
-          <div style={{ position: 'relative' }}>
+          <div className="relative mb-4">
             <input
               type={showPassword ? "text" : "password"}
               name="password" placeholder="Password" required minLength="6"
               value={formData.password} onChange={handleChange}
-              style={{ paddingRight: '40px' }}
+              className="input-field pr-12"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              style={{
-                position: 'absolute', right: '12px', top: '12px',
-                background: 'none', border: 'none', color: 'var(--text-secondary)'
-              }}
+              className="absolute right-4 top-3.5 text-slate-400 hover:text-white transition-colors"
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
 
           {!isLogin && (
-            <>
-              <select name="state" value={formData.state} onChange={handleChange} required>
-                {statesList.map(s => <option key={s} value={s}>{s}</option>)}
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <select 
+                name="state" 
+                value={formData.state} 
+                onChange={handleChange} 
+                required
+                className="input-field"
+              >
+                {statesList.map(s => <option key={s} value={s} className="bg-[#13191C]">{s}</option>)}
               </select>
-              <select name="district" value={formData.district} onChange={handleChange} required>
-                {currentDistricts.map(d => <option key={d} value={d}>{d}</option>)}
+              <select 
+                name="district" 
+                value={formData.district} 
+                onChange={handleChange} 
+                required
+                className="input-field"
+              >
+                {currentDistricts.map(d => <option key={d} value={d} className="bg-[#13191C]">{d}</option>)}
               </select>
-            </>
+            </div>
           )}
 
-          <button type="submit" className="btn-primary mb-2">
+          <button type="submit" className="btn-primary w-full py-3.5 font-bold mb-4 mt-2">
             {isLogin ? 'Login' : 'Register'}
           </button>
         </form>
 
-        <p className="text-center mt-2">
+        <p className="text-slate-400 text-sm text-center">
           {isLogin ? "Don't have an account? " : "Already have an account? "}
           <span
-            style={{ color: 'var(--accent-color)', cursor: 'pointer', fontWeight: 'bold' }}
+            className="text-emerald-400 hover:text-emerald-300 cursor-pointer font-bold transition-colors ml-1"
             onClick={() => { setIsLogin(!isLogin); setFormData({ ...formData, password: '' }); }}
           >
             {isLogin ? 'Register' : 'Login'}

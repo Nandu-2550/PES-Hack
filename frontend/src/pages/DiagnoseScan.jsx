@@ -32,18 +32,18 @@ const DiagnoseScan = () => {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-green-950">
+    <div className="relative min-h-screen bg-[#0B0F12] text-slate-200">
       {/* Pending-sync notification banner */}
       {pendingLogs > 0 && (
         <div className="
           fixed top-0 left-0 right-0 z-50
-          bg-yellow-900/90 border-b border-yellow-700
-          px-4 py-2
+          bg-yellow-500/10 border-b border-yellow-500/20
+          px-4 py-2.5
           flex items-center gap-2
-          backdrop-blur-sm
+          backdrop-blur-md
         ">
           <AlertTriangle size={16} className="text-yellow-400 flex-shrink-0" />
-          <span className="text-yellow-300 text-xs font-medium">
+          <span className="text-yellow-300 text-xs font-semibold">
             {pendingLogs} offline scan{pendingLogs !== 1 ? 's' : ''} pending sync
           </span>
         </div>

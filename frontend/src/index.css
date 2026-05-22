@@ -11,13 +11,13 @@
 
 
 :root {
-  --bg-color: #0d1f15;
-  --surface-color: #1a3a2a;
-  --primary-color: #2d6a4f;
-  --accent-color: #52b788;
-  --text-highlight: #d8f3dc;
+  --bg-color: #0B0F12;
+  --surface-color: #13191C;
+  --primary-color: #1A2228;
+  --accent-color: #10b981;
+  --text-highlight: #e2e8f0;
   --text-primary: #ffffff;
-  --text-secondary: #a8dabd;
+  --text-secondary: #94a3b8;
 }
 
 * {
@@ -182,5 +182,49 @@ p {
 @keyframes data-hover-sweep {
   to {
     transform: translateX(120%);
+  }
+}
+
+/* Premium Dark UI Additions */
+body { background-color: #0B0F12; color: #e2e8f0; }
+::selection { background: rgba(16,185,129,0.25); }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #0B0F12; }
+::-webkit-scrollbar-thumb { background: #1e3a2f; border-radius: 99px; }
+
+@layer components {
+  .card {
+    @apply bg-[#13191C]/80 border border-white/5 rounded-2xl
+           shadow-card backdrop-blur-glass transition-all duration-300 ease-out;
+  }
+  .card-hover {
+    @apply hover:-translate-y-0.5 hover:shadow-glow-sm hover:border-emerald-500/10;
+  }
+  .btn-primary {
+    @apply bg-emerald-500 hover:bg-emerald-400 text-[#0B0F12] font-semibold
+           rounded-xl px-4 py-2 shadow-glow-sm hover:shadow-glow-md
+           hover:-translate-y-0.5 transition-all duration-300;
+  }
+  .btn-outline {
+    @apply border border-white/10 hover:border-emerald-500/30 text-slate-400
+           hover:text-emerald-400 hover:bg-white/5 rounded-xl px-4 py-2
+           transition-all duration-300;
+  }
+  .btn-ghost {
+    @apply text-slate-400 hover:text-white hover:bg-white/5 rounded-xl
+           px-3 py-2 transition-all duration-200;
+  }
+  .input-field {
+    @apply bg-[#1A2228] border border-white/10 rounded-xl text-slate-200
+           placeholder-slate-600 focus:outline-none focus:border-emerald-500/40
+           focus:shadow-glow-sm transition-all duration-200 px-4 py-2.5;
+  }
+  .badge-available {
+    @apply text-xs font-medium rounded-full px-2.5 py-1 border
+           bg-emerald-500/10 text-emerald-400 border-emerald-500/20;
+  }
+  .badge-sold {
+    @apply text-xs font-medium rounded-full px-2.5 py-1 border
+           bg-amber-500/10 text-amber-400 border-amber-500/20;
   }
 }

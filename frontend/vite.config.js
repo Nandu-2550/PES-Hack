@@ -95,6 +95,9 @@ export default defineConfig({
   ],
 
   server: {
+    host: true, // This makes it accessible on the network
+    port: 5173, // Explicitly set the port
+    hmr: { port: 5173 }, // Ensure HMR uses the same port
     proxy: {
       "/api": {
         target: "http://127.0.0.1:5000",

@@ -11,9 +11,9 @@ const PlantSelector = ({ onSelectPart, selectedPart }) => {
             100% { transform: translateY(0px); }
           }
           @keyframes pulse-glow {
-            0% { filter: drop-shadow(0 0 8px rgba(82,183,136,0.4)); }
-            50% { filter: drop-shadow(0 0 16px rgba(82,183,136,0.8)); }
-            100% { filter: drop-shadow(0 0 8px rgba(82,183,136,0.4)); }
+            0% { filter: drop-shadow(0 0 8px rgba(16,185,129,0.3)); }
+            50% { filter: drop-shadow(0 0 16px rgba(16,185,129,0.6)); }
+            100% { filter: drop-shadow(0 0 8px rgba(16,185,129,0.3)); }
           }
           .plant-part {
             cursor: pointer;
@@ -59,7 +59,7 @@ const PlantSelector = ({ onSelectPart, selectedPart }) => {
           <rect x="90" y="155" width="60" height="110" fill="transparent" /> 
           <rect 
             x="105" y="155" width="30" height="110" rx="8" 
-            fill={selectedPart === "Stem" ? "var(--accent-color)" : "#1a3a2a"}
+            fill={selectedPart === "Stem" ? "var(--accent-color)" : "#1C252A"}
             stroke="var(--text-highlight)"
             strokeWidth="3"
             style={{ transition: 'fill 0.3s' }}
@@ -76,7 +76,7 @@ const PlantSelector = ({ onSelectPart, selectedPart }) => {
           {/* Roots */}
           <path 
             d="M 80 260 L 95 310 L 120 280 L 145 310 L 160 260 Z" 
-            fill={selectedPart === "Root" ? "var(--accent-color)" : "#8B4513"}
+            fill={selectedPart === "Root" ? "var(--accent-color)" : "#4E2A12"}
             stroke="var(--text-highlight)"
             strokeWidth="3"
             style={{ transition: 'fill 0.3s' }}

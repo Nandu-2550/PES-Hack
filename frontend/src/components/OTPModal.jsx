@@ -49,17 +49,19 @@ const OTPModal = ({ isOpen, onVerify, phone }) => {
     <div style={{
       position: 'fixed',
       top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.8)',
+      backgroundColor: 'rgba(0,0,0,0.6)',
+      backdropFilter: 'blur(4px)',
+      WebkitBackdropFilter: 'blur(4px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 2000
     }}>
-      <div className="surface-card" style={{ width: '90%', maxWidth: '350px' }}>
-        <h2 className="mb-2 text-center">Enter OTP</h2>
-        <p className="text-center mb-3">OTP sent to {phone}</p>
+      <div className="card p-6 w-full max-w-[350px] mx-4 space-y-4" style={{ border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+        <h2 className="text-center text-white font-semibold text-lg" style={{ margin: 0 }}>Enter OTP</h2>
+        <p className="text-center text-slate-400 text-sm mb-3" style={{ margin: 0 }}>OTP sent to <span className="text-white font-medium">{phone}</span></p>
         
-        <div className="flex justify-center gap-4 mb-3">
+        <div className="flex justify-center gap-3 mb-3">
           {otp.map((digit, i) => (
             <input
               key={i}
@@ -68,26 +70,26 @@ const OTPModal = ({ isOpen, onVerify, phone }) => {
               value={digit}
               onChange={(e) => handleChange(e, i)}
               onKeyDown={(e) => handleKeyDown(e, i)}
+              className="input-field text-center text-2xl font-semibold"
               style={{
                 width: '50px',
                 height: '50px',
-                textAlign: 'center',
-                fontSize: '24px',
-                padding: 0
+                padding: 0,
+                marginBottom: 0
               }}
             />
           ))}
         </div>
 
-        <button className="btn-primary mb-2" onClick={submit}>
+        <button className="btn-primary w-full py-3 mb-2 font-semibold text-sm" onClick={submit}>
           Verify OTP
         </button>
 
         <div className="text-center">
           {timer > 0 ? (
-            <p>Resend OTP in {timer}s</p>
+            <p className="text-slate-400 text-sm" style={{ margin: 0 }}>Resend OTP in <span className="text-emerald-400 font-semibold">{timer}s</span></p>
           ) : (
-            <button className="btn-secondary" onClick={() => setTimer(30)}>
+            <button className="btn-outline w-full py-2" onClick={() => setTimer(30)}>
               Resend OTP
             </button>
           )}

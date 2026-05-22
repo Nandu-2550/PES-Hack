@@ -42,8 +42,9 @@ const App = () => {
     >
       <Toaster position="top-center" toastOptions={{
         style: {
-          background: '#1a3a2a',
-          color: '#fff',
+          background: '#13191C',
+          color: '#e2e8f0',
+          border: '1px solid rgba(255,255,255,0.05)',
         }
       }}/>
       <Routes>

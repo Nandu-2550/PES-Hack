@@ -80,7 +80,7 @@ const PART_DESC = {
 /** Full-screen section wrapper */
 function Screen({ children, className = '' }) {
   return (
-    <div className={`min-h-screen w-full bg-green-950 flex flex-col ${className}`}>
+    <div className={`min-h-screen w-full bg-[#0B0F12] flex flex-col ${className}`}>
       {children}
     </div>
   );
@@ -89,17 +89,17 @@ function Screen({ children, className = '' }) {
 /** Top bar with optional back button */
 function TopBar({ title, onBack }) {
   return (
-    <div className="flex items-center gap-3 px-4 pt-5 pb-3 border-b border-green-800">
+    <div className="flex items-center gap-3 px-4 pt-5 pb-3 border-b border-white/5">
       {onBack && (
         <button
           onClick={onBack}
-          className="p-2 rounded-lg bg-green-900 border border-green-800 text-green-300 hover:bg-green-800 transition-colors"
+          className="p-2 rounded-lg bg-[#13191C] border border-white/5 text-slate-400 hover:text-white hover:bg-[#1A2228] transition-colors"
           aria-label="Go back"
         >
           <RotateCcw size={18} />
         </button>
       )}
-      <h1 className="text-green-50 font-semibold text-lg leading-tight">{title}</h1>
+      <h1 className="text-white font-semibold text-lg leading-tight">{title}</h1>
     </div>
   );
 }
@@ -177,7 +177,7 @@ function CropSelectScreen({ onSelect, onBack }) {
   return (
     <Screen>
       <TopBar title="Select Your Crop" onBack={onBack} />
-      <p className="px-4 pt-3 pb-2 text-green-400 text-sm">
+      <p className="px-4 pt-3 pb-2 text-slate-400 text-sm">
         Choose the crop you want to diagnose
       </p>
       <div className="flex-1 overflow-y-auto px-3 pb-6">
@@ -188,9 +188,9 @@ function CropSelectScreen({ onSelect, onBack }) {
               onClick={() => onSelect(crop)}
               className="
                 flex flex-col items-center justify-center gap-1.5
-                bg-green-900 border border-green-800 rounded-xl
+                bg-[#13191C]/80 border border-white/5 rounded-xl
                 px-2 py-4 text-center
-                hover:bg-green-800 hover:border-emerald-600
+                hover:bg-[#1A2228] hover:border-emerald-500/20
                 active:scale-95
                 transition-all duration-150
               "
@@ -198,7 +198,7 @@ function CropSelectScreen({ onSelect, onBack }) {
               <span className="text-2xl leading-none" role="img" aria-hidden="true">
                 {CROP_EMOJI[crop] || '🌿'}
               </span>
-              <span className="text-green-50 text-xs font-medium leading-tight">
+              <span className="text-white text-xs font-medium leading-tight">
                 {crop}
               </span>
             </button>
@@ -218,16 +218,16 @@ function PartSelectScreen({ cropName, onSelect, onBack }) {
       <TopBar title={`${cropName} — Select Plant Part`} onBack={onBack} />
 
       {/* Full-bleed animated background */}
-      <div className="relative overflow-hidden bg-green-950">
+      <div className="relative overflow-hidden bg-[#0B0F12]">
         <PlantScanAnimation />
-        <p className="text-center text-green-500 text-xs pb-2">
+        <p className="text-center text-slate-500 text-xs pb-2">
           Scan in progress…
         </p>
       </div>
 
       {/* 2×2 hotspot grid */}
       <div className="flex-1 px-4 pb-6 pt-2">
-        <p className="text-green-300 text-sm text-center mb-4 font-medium">
+        <p className="text-slate-300 text-sm text-center mb-4 font-medium">
           Which part of the plant is affected?
         </p>
         <div className="grid grid-cols-2 gap-3">
@@ -239,9 +239,9 @@ function PartSelectScreen({ cropName, onSelect, onBack }) {
                 onClick={() => onSelect(part)}
                 className="
                   flex flex-col items-center justify-center gap-2
-                  bg-green-900 border border-green-800 rounded-2xl
+                  bg-[#13191C]/80 border border-white/5 rounded-2xl
                   py-6 px-3 text-center
-                  hover:bg-green-800 hover:border-emerald-500
+                  hover:bg-[#1A2228] hover:border-emerald-500/20
                   active:scale-95
                   transition-all duration-150
                   group
@@ -250,8 +250,8 @@ function PartSelectScreen({ cropName, onSelect, onBack }) {
                 <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-600/40 flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
                   <Icon size={24} className="text-emerald-400" />
                 </div>
-                <span className="text-green-50 font-semibold text-sm">{part}</span>
-                <span className="text-green-500 text-xs leading-tight">{PART_DESC[part]}</span>
+                <span className="text-white font-semibold text-sm">{part}</span>
+                <span className="text-slate-400 text-xs leading-tight">{PART_DESC[part]}</span>
               </button>
             );
           })}
@@ -274,13 +274,13 @@ function CaptureScreen({ cropName, partName, onImageSelected, onBack }) {
 
       {/* Context label */}
       <div className="px-4 pt-5 pb-2">
-        <div className="bg-green-900/60 border border-green-800 rounded-xl px-4 py-3 flex items-start gap-3">
+        <div className="bg-[#13191C]/80 border border-white/5 rounded-xl px-4 py-3 flex items-start gap-3">
           <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-600/40 flex items-center justify-center flex-shrink-0 mt-0.5">
             <ScanLine size={16} className="text-emerald-400" />
           </div>
           <div>
-            <p className="text-green-50 text-sm font-medium">Ready to scan</p>
-            <p className="text-green-400 text-xs mt-0.5">
+            <p className="text-white text-sm font-medium">Ready to scan</p>
+            <p className="text-slate-400 text-xs mt-0.5">
               Take or upload a clear, well-lit close-up of the {partName.toLowerCase()} for best results.
             </p>
           </div>
@@ -316,8 +316,8 @@ function CaptureScreen({ cropName, partName, onImageSelected, onBack }) {
           }
         `}</style>
 
-        <div className="bg-green-900 border border-green-800 rounded-2xl p-5 space-y-3">
-          <p className="text-green-300 text-sm text-center font-medium mb-1">
+        <div className="bg-[#13191C] border border-white/5 rounded-2xl p-5 space-y-3 shadow-glow-sm">
+          <p className="text-slate-300 text-sm text-center font-medium mb-1">
             How would you like to add the image?
           </p>
 
@@ -327,9 +327,10 @@ function CaptureScreen({ cropName, partName, onImageSelected, onBack }) {
             className="
               w-full flex items-center justify-between gap-3
               bg-emerald-500 hover:bg-emerald-400
-              text-green-950 font-semibold
+              text-black font-semibold
               rounded-xl px-5 py-4
-              transition-colors duration-150
+              shadow-glow-sm
+              transition-all duration-150
               active:scale-95
             "
           >
@@ -345,9 +346,9 @@ function CaptureScreen({ cropName, partName, onImageSelected, onBack }) {
             onClick={() => fileRef.current.click()}
             className="
               w-full flex items-center justify-between gap-3
-              bg-green-900 hover:bg-green-800
-              border border-green-700 hover:border-emerald-600
-              text-green-50 font-semibold
+              bg-[#1A2228] hover:bg-[#222D35]
+              border border-white/5 hover:border-emerald-500/20
+              text-white font-semibold
               rounded-xl px-5 py-4
               transition-all duration-150
               active:scale-95
@@ -357,7 +358,7 @@ function CaptureScreen({ cropName, partName, onImageSelected, onBack }) {
               <Upload size={22} className="text-emerald-400" />
               <span>Upload from files</span>
             </div>
-            <ChevronRight size={18} className="text-green-500" />
+            <ChevronRight size={18} className="text-slate-500" />
           </button>
         </div>
       </div>
@@ -373,22 +374,22 @@ function AnalyzingScreen({ cropName, partName }) {
     <Screen className="items-center justify-center gap-6">
       {/* Spinner */}
       <div className="relative w-24 h-24">
-        <div className="absolute inset-0 rounded-full border-4 border-green-800" />
+        <div className="absolute inset-0 rounded-full border-4 border-white/5" />
         <div
           className="absolute inset-0 rounded-full border-4 border-transparent border-t-emerald-400 animate-spin"
         />
-        <div className="absolute inset-3 rounded-full bg-green-950 flex items-center justify-center">
+        <div className="absolute inset-3 rounded-full bg-[#13191C] flex items-center justify-center">
           <Leaf size={24} className="text-emerald-400" />
         </div>
       </div>
       <div className="text-center px-8">
-        <p className="text-green-50 font-semibold text-lg">
+        <p className="text-white font-semibold text-lg">
           Scanning {cropName}
         </p>
-        <p className="text-green-400 text-sm mt-1">
+        <p className="text-slate-400 text-sm mt-1">
           Analysing {partName}…
         </p>
-        <p className="text-green-600 text-xs mt-3">
+        <p className="text-slate-500 text-xs mt-3">
           Running on-device AI model
         </p>
       </div>
@@ -400,11 +401,11 @@ function AnalyzingScreen({ cropName, partName }) {
 // State: result
 // ---------------------------------------------------------------------------
 const SEVERITY_STYLES = {
-  High:    'bg-red-900/60 border-red-700 text-red-300',
-  Medium:  'bg-yellow-900/50 border-yellow-700 text-yellow-300',
-  Low:     'bg-green-900/60 border-green-700 text-green-300',
-  None:    'bg-green-900/60 border-green-700 text-green-400',
-  Unknown: 'bg-green-900/40 border-green-800 text-green-500',
+  High:    'bg-red-500/10 border-red-500/20 text-red-400',
+  Medium:  'bg-yellow-500/10 border-yellow-500/20 text-yellow-400',
+  Low:     'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
+  None:    'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
+  Unknown: 'bg-slate-500/10 border-slate-500/20 text-slate-400',
 };
 
 function ResultScreen({ result, onReset }) {
@@ -417,26 +418,26 @@ function ResultScreen({ result, onReset }) {
       <div className="flex-1 overflow-y-auto px-4 py-5 space-y-4">
 
         {/* Hero card */}
-        <div className="bg-green-900 border border-green-800 rounded-2xl p-5">
+        <div className="card p-5">
           <div className="flex items-center gap-2 mb-3">
             <CheckCircle2 size={20} className="text-emerald-400 flex-shrink-0" />
-            <span className="text-green-300 text-sm font-medium">
+            <span className="text-slate-400 text-sm font-medium">
               {result.cropName} — {result.partName}
             </span>
           </div>
 
           {/* Disease label */}
-          <h2 className="text-green-50 text-2xl font-bold leading-tight mb-1">
+          <h2 className="text-white text-2xl font-bold leading-tight mb-1">
             {result.label}
           </h2>
 
           {/* Confidence bar */}
           <div className="mt-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-green-400 text-xs">Confidence</span>
-              <span className="text-green-50 text-xs font-semibold">{confidencePct}%</span>
+              <span className="text-slate-400 text-xs">Confidence</span>
+              <span className="text-white text-xs font-semibold">{confidencePct}%</span>
             </div>
-            <div className="h-2 rounded-full bg-green-800 overflow-hidden">
+            <div className="h-2 rounded-full bg-white/5 overflow-hidden">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-emerald-600 to-emerald-400 transition-all duration-700"
                 style={{ width: `${confidencePct}%` }}
@@ -453,12 +454,12 @@ function ResultScreen({ result, onReset }) {
         </div>
 
         {/* Treatment section */}
-        <div className="bg-green-900 border border-green-800 rounded-2xl p-5">
+        <div className="card p-5">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-1 h-5 rounded-full bg-emerald-500" />
-            <h3 className="text-green-50 font-semibold">Recommended Treatment</h3>
+            <h3 className="text-white font-semibold">Recommended Treatment</h3>
           </div>
-          <p className="text-green-300 text-sm leading-relaxed">
+          <p className="text-slate-300 text-sm leading-relaxed">
             {result.treatment}
           </p>
         </div>
@@ -467,11 +468,8 @@ function ResultScreen({ result, onReset }) {
         <button
           onClick={onReset}
           className="
-            w-full bg-emerald-500 hover:bg-emerald-400
-            text-green-950 font-bold text-base
-            rounded-xl py-4
-            transition-colors duration-150
-            active:scale-95 flex items-center justify-center gap-2
+            btn-primary w-full py-4 text-base font-bold
+            flex items-center justify-center gap-2
           "
         >
           <RotateCcw size={18} />
@@ -491,17 +489,17 @@ function LowConfidenceScreen({ result, onRetake, onReset }) {
       <div className="w-full max-w-sm space-y-5">
 
         {/* Error card */}
-        <div className="bg-red-900/60 border border-red-700 rounded-2xl p-5 text-center">
+        <div className="bg-red-500/5 border border-red-500/15 rounded-2xl p-5 text-center">
           <AlertTriangle size={40} className="text-red-400 mx-auto mb-3" />
-          <h2 className="text-red-300 font-semibold text-base mb-2">
+          <h2 className="text-red-400 font-semibold text-base mb-2">
             Unclear diagnosis
           </h2>
-          <p className="text-red-300/80 text-sm leading-relaxed">
+          <p className="text-slate-300 text-sm leading-relaxed">
             Disease could not be clearly identified. Please retake a clear photo of the
             plant part or select a different image.
           </p>
           {result?.confidence !== undefined && (
-            <p className="text-red-400/60 text-xs mt-3">
+            <p className="text-slate-500 text-xs mt-3">
               Confidence: {Math.round(result.confidence * 100)}% (threshold: 50%)
             </p>
           )}
@@ -511,11 +509,8 @@ function LowConfidenceScreen({ result, onRetake, onReset }) {
         <button
           onClick={onRetake}
           className="
-            w-full bg-emerald-500 hover:bg-emerald-400
-            text-green-950 font-bold text-base
-            rounded-xl py-4
-            transition-colors duration-150
-            active:scale-95 flex items-center justify-center gap-2
+            btn-primary w-full py-4 text-base font-bold
+            flex items-center justify-center gap-2
           "
         >
           <Camera size={18} />
@@ -526,12 +521,8 @@ function LowConfidenceScreen({ result, onRetake, onReset }) {
         <button
           onClick={onReset}
           className="
-            w-full bg-transparent
-            border border-green-700 hover:border-green-600
-            text-green-400 font-medium text-sm
-            rounded-xl py-3
-            transition-all duration-150
-            active:scale-95 flex items-center justify-center gap-2
+            btn-outline w-full py-3 text-sm
+            flex items-center justify-center gap-2
           "
         >
           <X size={16} />
@@ -550,14 +541,14 @@ function IdleScreen({ modelReady, modelError, errorToast, onDismissToast, onStar
     <Screen className="px-4 pt-10">
       {/* Model unavailability inline toast */}
       {errorToast && (
-        <div className="mb-4 bg-yellow-900/50 border border-yellow-700 rounded-xl px-4 py-3 flex items-start gap-3">
+        <div className="mb-4 bg-yellow-500/5 border border-yellow-500/15 rounded-xl px-4 py-3 flex items-start gap-3">
           <AlertTriangle size={18} className="text-yellow-400 flex-shrink-0 mt-0.5" />
-          <p className="text-yellow-300 text-sm flex-1">
+          <p className="text-yellow-400 text-sm flex-1">
             AI model unavailable — connect once to download it.
           </p>
           <button
             onClick={onDismissToast}
-            className="text-yellow-500 hover:text-yellow-300 transition-colors"
+            className="text-yellow-400 hover:text-yellow-300 transition-colors"
             aria-label="Dismiss"
           >
             <X size={16} />
@@ -569,8 +560,8 @@ function IdleScreen({ modelReady, modelError, errorToast, onDismissToast, onStar
       <div className="flex flex-col items-center text-center pt-6 pb-8">
         <div className="relative w-36 h-36 mb-6">
           {/* Decorative concentric rings */}
-          <div className="absolute inset-0 rounded-full border-2 border-emerald-900 opacity-60" style={{ animation: 'agri-pulse 3s ease-in-out infinite' }} />
-          <div className="absolute inset-4 rounded-full border-2 border-emerald-800 opacity-70" style={{ animation: 'agri-pulse 2.4s ease-in-out infinite 0.5s' }} />
+          <div className="absolute inset-0 rounded-full border-2 border-emerald-900/60 opacity-60" style={{ animation: 'agri-pulse 3s ease-in-out infinite' }} />
+          <div className="absolute inset-4 rounded-full border-2 border-emerald-800/60 opacity-70" style={{ animation: 'agri-pulse 2.4s ease-in-out infinite 0.5s' }} />
           <div className="absolute inset-8 rounded-full bg-emerald-500/10 border-2 border-emerald-600 flex items-center justify-center">
             <Leaf size={40} className="text-emerald-400" />
           </div>
@@ -583,8 +574,8 @@ function IdleScreen({ modelReady, modelError, errorToast, onDismissToast, onStar
           `}</style>
         </div>
 
-        <h1 className="text-green-50 text-3xl font-bold mb-2">AI Crop Scanner</h1>
-        <p className="text-green-400 text-sm leading-relaxed max-w-xs">
+        <h1 className="text-white text-3xl font-bold mb-2">AI Crop Scanner</h1>
+        <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
           Identify plant diseases instantly — even offline — using on-device AI trained on
           Karnataka's most common crops.
         </p>
@@ -595,7 +586,7 @@ function IdleScreen({ modelReady, modelError, errorToast, onDismissToast, onStar
         {['15 crops', '4 plant parts', '100% offline', 'Instant results'].map((f) => (
           <span
             key={f}
-            className="text-xs text-green-400 bg-green-900 border border-green-800 rounded-full px-3 py-1"
+            className="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1"
           >
             {f}
           </span>
@@ -608,11 +599,9 @@ function IdleScreen({ modelReady, modelError, errorToast, onDismissToast, onStar
         disabled={!modelReady}
         title={!modelReady ? 'AI model loading…' : 'Start diagnosis'}
         className="
-          w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed
-          text-green-950 font-bold text-lg
-          rounded-xl py-4
-          transition-colors duration-150
-          active:scale-95 flex items-center justify-center gap-2
+          btn-primary w-full py-4 text-lg font-bold
+          flex items-center justify-center gap-2
+          disabled:opacity-50 disabled:cursor-not-allowed
         "
       >
         {modelReady ? (
@@ -622,14 +611,14 @@ function IdleScreen({ modelReady, modelError, errorToast, onDismissToast, onStar
           </>
         ) : (
           <>
-            <div className="w-5 h-5 border-2 border-green-900 border-t-green-950 rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-[#0B0F12] border-t-emerald-400 rounded-full animate-spin" />
             Loading AI…
           </>
         )}
       </button>
 
       {modelError && !errorToast && (
-        <p className="text-red-400 text-xs text-center mt-3">
+        <p className="text-red-400/80 text-xs text-center mt-3">
           {modelError}
         </p>
       )}

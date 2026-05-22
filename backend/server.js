@@ -60,6 +60,9 @@ io.on("connection", (socket) => {
   });
 });
 
+// Basic root route handler
+app.get('/', (req, res) => res.send('AgriHub Backend API is running...'));
+
 // Routes
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/jobs", require("./routes/jobs"));

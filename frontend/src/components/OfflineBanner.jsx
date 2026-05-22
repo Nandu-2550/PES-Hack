@@ -21,16 +21,21 @@ export default function OfflineBanner() {
   return (
     <div style={{
       position: 'fixed', bottom: 80, left: '5%', right: '5%',
-      background: '#2c2c2c', color: '#f4a261',
-      padding: '12px 16px', borderRadius: 8,
-      boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+      background: 'rgba(26, 21, 16, 0.85)',
+      backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
+      color: '#f4a261',
+      padding: '12px 16px',
+      borderRadius: 12,
+      border: '1px solid rgba(244,162,97,0.15)',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
       display: 'flex', alignItems: 'center', gap: 12,
       zIndex: 9999
     }}>
       <span style={{ fontSize: 20 }}>⚠</span>
       <div style={{ flex: 1 }}>
-        <h4 style={{ margin: 0, fontSize: 14 }}>You're currently offline</h4>
-        <p style={{ margin: 0, fontSize: 12, opacity: 0.8 }}>AgriShield is running in offline mode. Syncing is paused.</p>
+        <h4 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>You're currently offline</h4>
+        <p style={{ margin: 0, fontSize: 12, opacity: 0.8, color: '#f4a261aa' }}>AgriShield is running in offline mode. Syncing is paused.</p>
       </div>
     </div>
   );
