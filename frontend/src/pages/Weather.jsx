@@ -18,8 +18,7 @@ const Weather = () => {
   );
 
   // Placeholder for market prices, as they are not part of the weather API response
-  const marketPrices = [ /* ... your market price data ... */ ];
-  );
+  const marketPrices = [ /* ... your market price data ... */ ]; // Removed stray ');'
 
   return (
     <div className="page-container pb-20">
@@ -78,9 +77,11 @@ const Weather = () => {
             })}
           </div>
           </>
-        ) : ( // If weather data is available, but current weather data is not
-          <p className="text-slate-400 text-sm text-center py-8">Current weather data not available.</p>
-        </>
+        ) : (
+          <>
+            <p className="text-slate-400 text-sm text-center py-8">Current weather data not available.</p>
+          </>
+        )
       ) : (
         <p className="text-center text-red-400 py-8">Failed to load weather data.</p>
       )}
