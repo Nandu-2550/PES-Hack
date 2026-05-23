@@ -31,7 +31,10 @@ const Dashboard = () => {
       <div className="flex justify-between items-start mb-6">
         <div>
           <h2 className="text-slate-400 text-sm font-semibold uppercase tracking-wider">{t('welcome') || 'Namaskara'},</h2>
-          <h1 className="text-white text-3xl font-extrabold mt-0.5">{user.name}!</h1>
+          <div className="flex items-center gap-3 mt-0.5">
+            <img src="/logo.png" alt="AgriShield" className="w-10 h-10 object-contain drop-shadow-glow" />
+            <h1 className="text-white text-3xl font-extrabold">{user.name}!</h1>
+          </div>
         </div>
         <span className="bg-[#13191C] text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-full border border-white/5 shadow-glow-sm">
           📍 {user.district}

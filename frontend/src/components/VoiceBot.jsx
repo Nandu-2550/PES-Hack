@@ -117,7 +117,18 @@ export default function VoiceBot() {
     } catch (err) {
       console.error('Chat API error:', err);
       setIsThinking(false);
-      setError('Failed to get AI response. Please try again.');
+      
+      if (err.response && err.response.status === 429) {
+        const rateLimitMsg = lang === 'kn' 
+          ? 'ನಾನು ಈಗ ಕಾರ್ಯನಿರತನಾಗಿದ್ದೇನೆ, ದಯವಿಟ್ಟು ಒಂದು ನಿಮಿಷದ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.' 
+          : lang === 'hi' 
+          ? 'मुझे बहुत सारे अनुरोध मिल रहे हैं, कृपया एक मिनट बाद पुनः प्रयास करें।' 
+          : 'I am receiving too many requests right now. Please wait a minute and try again.';
+        setError(rateLimitMsg);
+        speakResponse(rateLimitMsg);
+      } else {
+        setError('Failed to get AI response. Please try again.');
+      }
     }
   }, [messages, lang, isThinking]); // Add isThinking to dependency array
 

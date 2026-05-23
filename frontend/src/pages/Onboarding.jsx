@@ -167,11 +167,7 @@ const Onboarding = () => {
     <div className="page-container flex flex-col items-center justify-center min-h-screen bg-[#0B0F12] text-slate-200 px-4 py-8">
       
       <div className="flex flex-col items-center mb-8">
-        <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shadow-glow-md mb-3 animate-pulse">
-          <svg className="w-8 h-8 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M14 12a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-        </div>
+        <img src="/logo.png" alt="AgriShield Logo" className="w-24 h-auto drop-shadow-glow mb-2" />
         <h1 className="text-white text-3xl font-extrabold tracking-tight">AgriShield</h1>
       </div>
 
