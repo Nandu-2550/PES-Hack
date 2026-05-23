@@ -74,6 +74,7 @@ app.use('/api/schemes', require('./routes/schemes'));
 app.use('/api/loans', require('./routes/loans'));
 app.use('/api/chat', require('./routes/chat'));
 app.use('/api/translate', require('./routes/translate'));
+app.use('/api/tts', require('./routes/tts'));
 
 const PORT = process.env.PORT || 5000;
 

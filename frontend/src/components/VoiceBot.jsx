@@ -134,6 +134,59 @@ export default function VoiceBot() {
 
   // Text-to-Speech
   const speakResponse = (text) => {
+    // KANNADA FALLBACK: Windows often lacks native Kannada TTS
+    if (lang === 'kn') {
+      const chunks = text.match(/[^.!?।]+[.!?।]*/g) || [text];
+      let currentChunk = 0;
+
+      const playNext = () => {
+        if (currentChunk >= chunks.length) {
+          setIsSpeaking(false);
+          return;
+        }
+        setIsSpeaking(true);
+        const chunkText = chunks[currentChunk].trim();
+        if (!chunkText) {
+          currentChunk++;
+          playNext();
+          return;
+        }
+        
+        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        const url = `${baseUrl}/api/tts?lang=kn&text=${encodeURIComponent(chunkText.substring(0, 200))}`;
+        const audio = new Audio(url);
+        
+        audio.onended = () => {
+          currentChunk++;
+          playNext();
+        };
+        audio.onerror = () => {
+          currentChunk++;
+          playNext();
+        };
+        audio.play().catch(e => {
+          console.error("Audio play failed:", e);
+          currentChunk++;
+          playNext();
+        });
+        
+        // Override synthRef for this session so we can cancel it
+        synthRef.current = {
+          speaking: true,
+          cancel: () => {
+            audio.pause();
+            currentChunk = chunks.length;
+            setIsSpeaking(false);
+          }
+        };
+      };
+      
+      playNext();
+      return;
+    }
+
+    // Default Web Speech API for other languages
+    synthRef.current = window.speechSynthesis;
     if (!synthRef.current) return;
     
     if (synthRef.current.speaking) {
@@ -146,7 +199,6 @@ export default function VoiceBot() {
     utterance.pitch = 1.0;
     utterance.volume = 1.0;
 
-    // Use a matching voice if possible
     const voices = synthRef.current.getVoices();
     const matchingVoice = voices.find(v => v.lang.startsWith(lang));
     if (matchingVoice) utterance.voice = matchingVoice;
