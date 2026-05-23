@@ -6,21 +6,12 @@ const axios = require('axios');
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Helper to execute REST calls with retries and backoff on 429 Rate Limits
-async function callApiWithRetry(url, payload, headers, retries = 3, delay = 1500) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const res = await axios.post(url, payload, { headers });
-      return res;
-    } catch (err) {
-      const status = err.response?.status;
-      if (status === 429 && i < retries - 1) {
-        const waitTime = delay * (i + 1);
-        console.warn(`[Chat API] 429 Rate limited. Retrying in ${waitTime}ms... (Attempt ${i + 1}/${retries})`);
-        await wait(waitTime);
-        continue;
-      }
-      throw err;
-    }
+async function callApiWithRetry(url, payload, headers) {
+  try {
+    const res = await axios.post(url, payload, { headers });
+    return res;
+  } catch (err) {
+    throw err;
   }
 }
 
@@ -54,19 +45,21 @@ router.post('/', async (req, res) => {
 
     } else if (process.env.GEMINI_API_KEY) {
       // 2. Gemini API (gemini-2.5-flash)
-      const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
       
-      const contents = [
-        { role: 'user', parts: [{ text: systemPrompt }] },
-        ...messages.map(m => ({
+      const payload = {
+        systemInstruction: {
+          parts: [{ text: systemPrompt }]
+        },
+        contents: messages.map(m => ({
           role: m.role === 'assistant' ? 'model' : 'user',
           parts: [{ text: m.content }]
         }))
-      ];
+      };
 
       const response = await callApiWithRetry(
         url,
-        { contents },
+        payload,
         { 'Content-Type': 'application/json' }
       );
       responseText = response.data.candidates[0].content.parts[0].text;
@@ -77,7 +70,27 @@ router.post('/', async (req, res) => {
     return res.json({ response: responseText });
   } catch (err) {
     console.error('Chat error:', err.response?.data || err.message);
-    res.status(500).json({ error: err.message });
+    const status = err.response?.status || 500;
+    
+    if (status === 429) {
+      console.log('[Chat API] Gemini 429 hit. Falling back to free Pollinations AI endpoint...');
+      try {
+        const fallbackRes = await axios.post('https://text.pollinations.ai/openai/chat/completions', {
+          model: 'openai',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...messages.map(m => ({ role: m.role, content: m.content }))
+          ]
+        }, { headers: { 'Content-Type': 'application/json' } });
+        
+        return res.json({ response: fallbackRes.data.choices[0].message.content });
+      } catch (fallbackErr) {
+        console.error('Fallback API failed:', fallbackErr.message);
+        return res.status(429).json({ error: 'All AI services are currently busy. Please try again later.' });
+      }
+    }
+
+    res.status(status).json({ error: err.message, details: err.response?.data });
   }
 });
 
