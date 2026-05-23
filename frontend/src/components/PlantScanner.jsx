@@ -11,6 +11,8 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { runDiagnosis } from '../services/aiEngine';
 import { useImageClassifier } from '../hooks/useImageClassifier';
+import { useLanguage } from '../context/LanguageContext';
+import client from '../api/client';
 import {
   Leaf,
   Sprout,
@@ -408,73 +410,134 @@ const SEVERITY_STYLES = {
   Unknown: 'bg-slate-500/10 border-slate-500/20 text-slate-400',
 };
 
-function ResultScreen({ result, onReset }) {
-  const confidencePct = Math.round(result.confidence * 100);
-  const severityStyle = SEVERITY_STYLES[result.severity] || SEVERITY_STYLES.Unknown;
-
+function ResultScreen({ result, runMode, t, onReset }) {
   return (
     <Screen>
       <TopBar title="Diagnosis Complete" />
       <div className="flex-1 overflow-y-auto px-4 py-5 space-y-4">
+        <div className="diagnosis-result-card">
 
-        {/* Hero card */}
-        <div className="card p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <CheckCircle2 size={20} className="text-emerald-400 flex-shrink-0" />
-            <span className="text-slate-400 text-sm font-medium">
-              {result.cropName} — {result.partName}
-            </span>
-          </div>
-
-          {/* Disease label */}
-          <h2 className="text-white text-2xl font-bold leading-tight mb-1">
-            {result.label}
-          </h2>
-
-          {/* Confidence bar */}
-          <div className="mt-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-slate-400 text-xs">Confidence</span>
-              <span className="text-white text-xs font-semibold">{confidencePct}%</span>
+          {/* Header: Disease name + severity badge */}
+          <div className="result-header">
+            <div>
+              <h2 className="disease-name">{result.disease || result.label || 'Analysis Complete'}</h2>
+              <span style={{
+                display: 'inline-block', marginTop: '4px',
+                fontSize: '11px', color: 'var(--text-secondary-2)',
+                background: 'var(--surface-glass)',
+                padding: '2px 10px', borderRadius: '20px',
+                border: '1px solid var(--border-subtle)'
+              }}>
+                {runMode}
+              </span>
             </div>
-            <div className="h-2 rounded-full bg-white/5 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-600 to-emerald-400 transition-all duration-700"
-                style={{ width: `${confidencePct}%` }}
-              />
+            <div className="severity-container">
+              <span className={`severity-badge severity-${(result.severity || 'unknown').toLowerCase()}`}>
+                {result.severity || 'Unknown'}
+              </span>
+              {result.confidence && (
+                <div className="confidence-bar-wrap">
+                  <div className="confidence-bar"
+                    style={{ width: `${Math.round((result.confidence || 0) * 100)}%` }} />
+                  <span className="confidence-text">
+                    {Math.round((result.confidence || 0) * 100)}% confidence
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Severity badge */}
-          <div className="mt-3">
-            <span className={`inline-block text-xs font-semibold px-3 py-1 rounded-full border ${severityStyle}`}>
-              Severity: {result.severity}
-            </span>
-          </div>
-        </div>
+          {/* What was observed */}
+          {result.symptoms_observed && (
+            <div className="result-section">
+              <h4>🔍 {t('symptoms_observed') || 'Symptoms Observed'}</h4>
+              <p>{result.symptoms_observed}</p>
+            </div>
+          )}
 
-        {/* Treatment section */}
-        <div className="card p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-1 h-5 rounded-full bg-emerald-500" />
-            <h3 className="text-white font-semibold">Recommended Treatment</h3>
+          {/* Immediate Action — most prominent */}
+          <div className="result-section result-urgent">
+            <h4>⚡ {t('immediate_action') || 'Do This TODAY'}</h4>
+            <p>{result.immediate_action || result.action}</p>
           </div>
-          <p className="text-slate-300 text-sm leading-relaxed">
-            {result.treatment}
-          </p>
-        </div>
 
-        {/* Diagnose another button */}
-        <button
-          onClick={onReset}
-          className="
-            btn-primary w-full py-4 text-base font-bold
-            flex items-center justify-center gap-2
-          "
-        >
-          <RotateCcw size={18} />
-          Diagnose another
-        </button>
+          {/* Treatment */}
+          <div className="result-section">
+            <h4>💊 {t('chemical_treatment') || 'Chemical Treatment'}</h4>
+            <p>{result.chemical_treatment}</p>
+            {result.dose && <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+              <strong>Dose:</strong> {result.dose}
+            </p>}
+          </div>
+
+          {/* Organic Alternative */}
+          {result.organic_alternative && (
+            <div className="result-section">
+              <h4>🌿 {t('organic_alternative') || 'Organic Alternative'}</h4>
+              <p>{result.organic_alternative}</p>
+            </div>
+          )}
+
+          {/* Prevention */}
+          {result.prevention && (
+            <div className="result-section">
+              <h4>🛡️ {t('prevention') || 'Prevention'}</h4>
+              <p>{result.prevention}</p>
+            </div>
+          )}
+
+          {/* Yield Impact + Spread Risk */}
+          {(result.yield_impact || result.spread_risk) && (
+            <div className="result-meta-row">
+              {result.yield_impact && (
+                <div className="result-meta-chip">
+                  <span>📉 Yield Risk</span>
+                  <strong>{result.yield_impact}</strong>
+                </div>
+              )}
+              {result.spread_risk && (
+                <div className="result-meta-chip">
+                  <span>🔴 Spread Risk</span>
+                  <strong>{result.spread_risk}</strong>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* BUY PRODUCTS — the critical feature */}
+          {result.buyLinks && result.buyLinks.length > 0 && (
+            <div className="result-section buy-links-section">
+              <h4>🛒 {t('buy_products') || 'Buy Treatment Products'}</h4>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px' }}>
+                {t('verified_sellers') || 'Verified agricultural suppliers in India:'}
+              </p>
+              <div className="buy-links-grid">
+                {result.buyLinks.map((link, idx) => (
+                  <a
+                    key={idx}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="buy-link-btn"
+                  >
+                    🛍️ {link.name}
+                    <span style={{ fontSize: '10px', marginLeft: '4px', opacity: 0.7 }}>↗</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Retake button */}
+          <button
+            onClick={onReset}
+            className="btn-primary"
+            style={{ marginTop: '16px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+          >
+            <RotateCcw size={18} />
+            {t('scan_another') || 'Scan Another Crop'}
+          </button>
+        </div>
       </div>
     </Screen>
   );
@@ -634,6 +697,9 @@ export default function PlantScanner() {
   const [selectedCrop, setSelectedCrop] = useState(null);
   const [selectedPart, setSelectedPart] = useState(null);
   const [diagnosisResult, setDiagnosisResult] = useState(null);
+  const [runMode, setRunMode] = useState(null);
+
+  const { t } = useLanguage();
 
   // Hidden img element ref — used to pass to TF.js inference
   const hiddenImgRef = useRef(null);
@@ -662,34 +728,98 @@ export default function PlantScanner() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Reset value so the same file can be re-selected after a retake
     e.target.value = '';
-
     const objectUrl = URL.createObjectURL(file);
 
-    // Advance to analyzing state immediately so the user sees feedback
     setViewState('analyzing');
     setDiagnosisResult(null);
+    setRunMode(null);
 
-    // Load the image into the hidden <img> element so TF.js can read pixels
     const img = hiddenImgRef.current;
     img.onload = async () => {
-      const result = await runDiagnosis(img, selectedCrop, selectedPart);
-      URL.revokeObjectURL(objectUrl);
+      // ── TIER 1: Gemini Vision API (via backend) ──────────────────
+      if (navigator.onLine) {
+        try {
+          const base64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
 
-      if (result.error) {
-        // Engine-level error — treat as low confidence to allow retake
-        setDiagnosisResult({ confidence: 0, label: 'Error', treatment: result.message, severity: 'Unknown' });
-        setViewState('lowConfidence');
-        return;
+          const response = await client.post('/api/diagnose/gemini', {
+            imageBase64: base64,
+            mimeType: file.type || 'image/jpeg',
+            crop: selectedCrop,
+            part: selectedPart,
+          });
+
+          if (response.data && !response.data.fallback) {
+            setDiagnosisResult({ ...response.data, tier: 1 });
+            setRunMode('☁️ Gemini AI Vision');
+            setViewState('result');
+            URL.revokeObjectURL(objectUrl);
+            return;
+          }
+        } catch (err) {
+          console.warn('[Tier 1] Gemini failed, trying FastAPI:', err.message);
+        }
       }
 
-      setDiagnosisResult(result);
-      setViewState(result.confidence >= 0.50 ? 'result' : 'lowConfidence');
+      // ── TIER 2: FastAPI Rule-Based Engine ────────────────────────
+      if (navigator.onLine) {
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('crop', selectedCrop);
+          formData.append('part', selectedPart);
+
+          const response = await client.post('/api/diagnose', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
+          const data = response.data;
+          
+          let diagnosisData = data.diagnosis || data;
+          if (diagnosisData && diagnosisData.disease) {
+            setDiagnosisResult({ ...diagnosisData, tier: 2 });
+            setRunMode('🔬 Expert Rules Engine');
+            setViewState('result');
+            URL.revokeObjectURL(objectUrl);
+            return;
+          }
+        } catch (err) {
+          console.warn('[Tier 2] FastAPI failed, using offline:', err.message);
+        }
+      }
+
+      // ── TIER 3: TF.js Offline Classifier ────────────────────────
+      try {
+        const { classifyImage } = await import('../ai/cropClassifier');
+        const offlineResult = await classifyImage(img, selectedCrop, selectedPart);
+        setDiagnosisResult({ ...offlineResult, tier: 3 });
+        setRunMode('📱 On-Device AI (Offline)');
+        setViewState('result');
+      } catch (err) {
+        console.error('[Tier 3] All tiers failed:', err);
+        setDiagnosisResult({
+          disease: 'Analysis Error',
+          severity: 'Unknown',
+          immediate_action: 'Please retake the photo in better lighting and try again. Ensure the affected area fills the frame.',
+          chemical_treatment: 'Consult your local KVK or agricultural officer.',
+          buyLinks: [{ name: 'AgriBegri', url: 'https://agribegri.com' }],
+          tier: 0,
+        });
+        setRunMode('⚠️ Service Unavailable');
+        setViewState('lowConfidence');
+      }
+      
+      URL.revokeObjectURL(objectUrl);
     };
+    
     img.onerror = () => {
       URL.revokeObjectURL(objectUrl);
-      setDiagnosisResult({ confidence: 0, label: 'Image load error', treatment: 'Could not load the selected image.', severity: 'Unknown' });
+      setDiagnosisResult({ disease: 'Image load error', severity: 'Unknown' });
+      setRunMode('⚠️ Service Unavailable');
       setViewState('lowConfidence');
     };
     img.src = objectUrl;
@@ -766,6 +896,8 @@ export default function PlantScanner() {
       {viewState === 'result' && diagnosisResult && (
         <ResultScreen
           result={diagnosisResult}
+          runMode={runMode}
+          t={t}
           onReset={resetToIdle}
         />
       )}
