@@ -5,11 +5,14 @@ import client from '../api/client';
 import JobCard from '../components/JobCard';
 import SyncBadge from '../components/SyncBadge';
 import { useCachedFetch } from '../hooks/useCachedFetch';
-import { ScanLine, Briefcase, Tractor, TrendingUp } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+import { ScanLine, Briefcase, Tractor, CloudSun, ShoppingBasket, FileText, Landmark } from 'lucide-react';
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { t } = useLanguage();
+
   const { data: weather, syncedAt: weatherSync, isStale: weatherStale } = useCachedFetch(
     `weather_${user?.district}`,
     user ? `/api/weather?district=${user.district}` : null
@@ -27,7 +30,7 @@ const Dashboard = () => {
     <div className="page-container pb-20">
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h2 className="text-slate-400 text-sm font-semibold uppercase tracking-wider">Namaskara,</h2>
+          <h2 className="text-slate-400 text-sm font-semibold uppercase tracking-wider">{t('welcome') || 'Namaskara'},</h2>
           <h1 className="text-white text-3xl font-extrabold mt-0.5">{user.name}!</h1>
         </div>
         <span className="bg-[#13191C] text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-full border border-white/5 shadow-glow-sm">
@@ -38,16 +41,16 @@ const Dashboard = () => {
       <SyncBadge syncedAt={weatherSync} isStale={weatherStale} />
 
       {/* Weather Card */}
-      <div className="card p-5 mb-6 flex items-center justify-between shadow-glow-sm">
+      <div className="premium-card p-5 mb-6 flex items-center justify-between">
         {weather ? (
-          weather.current ? ( // If weather data and current weather data are available
+          weather.current ? (
             <>
               <div>
-                <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Current Weather</p>
+                <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">{t('weather') || 'Current Weather'}</p>
                 <h2 className="text-white text-4xl font-extrabold my-1">{Math.round(weather.current.temp)}°C</h2>
                 <p className="text-emerald-400 text-sm font-semibold capitalize">{weather.current.description}</p>
               </div>
-              {weather.current.icon && ( // Conditionally render icon if it exists
+              {weather.current.icon && (
                 <img
                   src={`https://openweathermap.org/img/wn/${weather.current.icon}@2x.png`}
                   alt="weather"
@@ -55,47 +58,62 @@ const Dashboard = () => {
                 />
               )}
             </>
-          ) : ( // If weather data is available, but current weather data is not
+          ) : (
             <p className="text-slate-400 text-sm">Current weather data not available.</p>
           )
         ) : (
-          <p className="text-slate-400 text-sm">Loading weather...</p>
+          <p className="text-slate-400 text-sm">{t('loading')}</p>
         )}
       </div>
 
       {/* Quick Actions Grid */}
-      <h3 className="text-white font-bold text-lg mb-3">Quick Actions</h3>
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <h3 className="text-white font-bold text-lg mb-3">{t('quick_actions')}</h3>
+      <div className="grid grid-cols-3 gap-3 mb-6">
         <QuickActionCard 
-          icon={<ScanLine size={28} className="text-emerald-400" />} 
-          title="Diagnose Crop" 
+          icon={<ScanLine size={24} className="text-emerald-400" />} 
+          title={t('scan_crop')} 
           onClick={() => navigate('/diagnose')} 
         />
         <QuickActionCard 
-          icon={<Briefcase size={28} className="text-emerald-400" />} 
-          title="Find Workers" 
+          icon={<Briefcase size={24} className="text-emerald-400" />} 
+          title={t('find_jobs')} 
           onClick={() => navigate('/jobs')} 
         />
         <QuickActionCard 
-          icon={<Tractor size={28} className="text-emerald-400" />} 
-          title="Rent Machinery" 
+          icon={<Tractor size={24} className="text-emerald-400" />} 
+          title={t('rent_machinery')} 
           onClick={() => navigate('/machinery')} 
         />
         <QuickActionCard 
-          icon={<TrendingUp size={28} className="text-emerald-400" />} 
-          title="Market Prices" 
+          icon={<CloudSun size={24} className="text-emerald-400" />} 
+          title={t('weather')} 
           onClick={() => navigate('/weather')} 
+        />
+        <QuickActionCard 
+          icon={<ShoppingBasket size={24} className="text-emerald-400" />} 
+          title={t('sell_crops')} 
+          onClick={() => navigate('/market')} 
+        />
+        <QuickActionCard 
+          icon={<FileText size={24} className="text-emerald-400" />} 
+          title={t('view_schemes')} 
+          onClick={() => navigate('/schemes')} 
+        />
+        <QuickActionCard 
+          icon={<Landmark size={24} className="text-emerald-400" />} 
+          title={t('find_loans')} 
+          onClick={() => navigate('/loans')} 
         />
       </div>
 
       {/* Recent Activity */}
       <div className="flex justify-between items-center mb-3">
-        <h3 className="text-white font-bold text-lg">Recent Jobs near you</h3>
+        <h3 className="text-white font-bold text-lg">{t('recent_jobs') || 'Recent Jobs near you'}</h3>
         <span 
           onClick={() => navigate('/jobs')} 
           className="text-emerald-400 hover:text-emerald-300 font-semibold cursor-pointer text-sm transition-colors"
         >
-          See all
+          {t('see_all') || 'See all'}
         </span>
       </div>
       
@@ -115,11 +133,12 @@ const Dashboard = () => {
 
 const QuickActionCard = ({ icon, title, onClick }) => (
   <div 
-    className="card card-hover flex flex-col items-center justify-center text-center p-5 shadow-glow-sm cursor-pointer" 
+    className="premium-card flex flex-col items-center justify-center text-center p-3 cursor-pointer" 
     onClick={onClick}
+    style={{ margin: 0 }}
   >
-    <div className="mb-2">{icon}</div>
-    <span className="text-white font-semibold text-sm">{title}</span>
+    <div className="mb-1.5">{icon}</div>
+    <span className="text-white font-semibold text-xs leading-tight">{title}</span>
   </div>
 );
 

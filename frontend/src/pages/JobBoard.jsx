@@ -6,9 +6,11 @@ import { AuthContext } from '../context/AuthContext';
 import JobCard from '../components/JobCard';
 import SyncBadge from '../components/SyncBadge';
 import { useCachedFetch } from '../hooks/useCachedFetch';
+import { useLanguage } from '../context/LanguageContext';
 
 const JobBoard = () => {
   const { user } = useContext(AuthContext);
+  const { t } = useLanguage();
   const { data: jobsRaw, setData: setJobs, syncedAt, isStale } = useCachedFetch(
     `jobs_${user?.district}`,
     user ? `/api/jobs` : null
@@ -31,6 +33,7 @@ const JobBoard = () => {
   const amenitiesList = ["Food", "Stay", "Transport"];
 
   useEffect(() => {
+    if (!user) return;
     
     // Socket.io connection (will be proxied by Vite)
     const socket = io();
@@ -44,7 +47,7 @@ const JobBoard = () => {
     });
 
     return () => socket.disconnect();
-  }, [user]);
+  }, [user, setJobs]);
 
   useEffect(() => {
     if (view === 'my') {
@@ -57,7 +60,7 @@ const JobBoard = () => {
       const res = await client.get('/api/jobs/mine');
       setMyJobs(res.data);
     } catch (err) {
-      toast.error("Failed to load your jobs");
+      toast.error(t('error'));
     }
   };
 
@@ -65,10 +68,10 @@ const JobBoard = () => {
     e.preventDefault();
     try {
       await client.post('/api/jobs', formData);
-      toast.success("Job posted successfully!");
+      toast.success(t('posted_success') || "Job posted successfully!");
       setView('my');
     } catch (err) {
-      toast.error("Failed to post job");
+      toast.error(t('error'));
     }
   };
 
@@ -90,18 +93,18 @@ const JobBoard = () => {
       toast.success("Job marked as completed");
       fetchMyJobs();
     } catch (err) {
-      toast.error("Failed to update job");
+      toast.error(t('error'));
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this job?")) return;
+    if (!window.confirm(t('confirm_delete') || "Delete this job?")) return;
     try {
       await client.delete(`/api/jobs/${id}`);
-      toast.success("Job deleted");
+      toast.success(t('deleted_success') || "Job deleted");
       fetchMyJobs();
     } catch (err) {
-      toast.error("Failed to delete job");
+      toast.error(t('error'));
     }
   };
 
@@ -109,28 +112,28 @@ const JobBoard = () => {
 
   return (
     <div className="page-container pb-20">
-      <h1 className="text-white text-3xl font-extrabold mb-1">Job Board</h1>
+      <h1 className="text-white text-3xl font-extrabold mb-1">{t('govt_schemes') ? t('jobs') : 'Job Board'}</h1>
       <SyncBadge syncedAt={syncedAt} isStale={isStale} />
       
       {/* View Toggles */}
-      <div className="flex bg-[#13191C] border border-white/5 rounded-xl p-1 gap-1 mb-5">
+      <div className="tab-dock">
         <button 
-          className={`flex-1 py-2 px-3 text-sm font-semibold rounded-lg transition-all duration-150 ${view === 'feed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`} 
+          className={`tab-pill ${view === 'feed' ? 'active' : ''}`} 
           onClick={() => setView('feed')}
         >
-          Job Feed
+          {t('market') || 'Job Feed'}
         </button>
         <button 
-          className={`flex-1 py-2 px-3 text-sm font-semibold rounded-lg transition-all duration-150 ${view === 'my' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`} 
+          className={`tab-pill ${view === 'my' ? 'active' : ''}`} 
           onClick={() => setView('my')}
         >
-          My Posts
+          {t('my_listings') || 'My Posts'}
         </button>
         <button 
-          className={`flex-1 py-2 px-3 text-sm font-semibold rounded-lg transition-all duration-150 ${view === 'post' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`} 
+          className={`tab-pill ${view === 'post' ? 'active' : ''}`} 
           onClick={() => setView('post')}
         >
-          + Post Job
+          + {t('jobs') || 'Post Job'}
         </button>
       </div>
 
@@ -139,7 +142,7 @@ const JobBoard = () => {
           <select 
             value={workFilter} 
             onChange={(e) => setWorkFilter(e.target.value)}
-            className="input-field mb-4"
+            className="input-field mb-4 w-full"
           >
             <option value="" className="bg-[#13191C]">All Work Types</option>
             <option value="Harvesting" className="bg-[#13191C]">Harvesting</option>
@@ -150,7 +153,7 @@ const JobBoard = () => {
             <option value="General" className="bg-[#13191C]">General</option>
           </select>
 
-          {filteredJobs.length === 0 && <p className="text-slate-500 text-center py-8 text-sm">No jobs found.</p>}
+          {filteredJobs.length === 0 && <p className="text-slate-500 text-center py-8 text-sm">{t('no_listings_found') || 'No jobs found.'}</p>}
           <div className="space-y-3">
             {filteredJobs.map(job => (
               <JobCard key={job._id} job={job} isOwner={false} />
@@ -161,7 +164,7 @@ const JobBoard = () => {
 
       {view === 'my' && (
         <div className="space-y-3">
-          {myJobs.length === 0 && <p className="text-slate-500 text-center py-8 text-sm">You haven't posted any jobs.</p>}
+          {myJobs.length === 0 && <p className="text-slate-500 text-center py-8 text-sm">{t('no_listings_found') || "You haven't posted any jobs."}</p>}
           {myJobs.map(job => (
             <div key={job._id} style={{ opacity: job.status === 'completed' ? 0.5 : 1 }}>
               {job.status === 'completed' && (
@@ -181,14 +184,14 @@ const JobBoard = () => {
       )}
 
       {view === 'post' && (
-        <div className="card p-6 shadow-glow-md">
-          <h2 className="text-white text-xl font-bold mb-4">Post a New Job</h2>
+        <div className="premium-card">
+          <h2 className="text-white text-xl font-bold mb-4">{t('jobs') || 'Post a New Job'}</h2>
           <form onSubmit={handlePostSubmit}>
-            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Work Type</label>
+            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">{t('category') || 'Work Type'}</label>
             <select 
               value={formData.workType} 
               onChange={(e) => setFormData({...formData, workType: e.target.value})}
-              className="input-field mb-4"
+              className="input-field mb-4 w-full"
             >
               <option value="Harvesting" className="bg-[#13191C]">Harvesting</option>
               <option value="Weeding" className="bg-[#13191C]">Weeding</option>
@@ -200,41 +203,41 @@ const JobBoard = () => {
 
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div>
-                <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Workers Needed</label>
+                <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">{t('workers_needed') || 'Workers Needed'}</label>
                 <input 
                   type="number" min="1" required 
                   value={formData.workersNeeded}
                   onChange={(e) => setFormData({...formData, workersNeeded: e.target.value})}
-                  className="input-field"
+                  className="input-field w-full"
                 />
               </div>
               <div>
-                <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Duration (Days)</label>
+                <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">{t('duration') || 'Duration (Days)'}</label>
                 <input 
                   type="number" min="1" required 
                   value={formData.durationDays}
                   onChange={(e) => setFormData({...formData, durationDays: e.target.value})}
-                  className="input-field"
+                  className="input-field w-full"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div>
-                <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Salary Amount (₹)</label>
+                <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">{t('price_per_day') || 'Salary Amount (₹)'}</label>
                 <input 
                   type="number" min="1" required 
                   value={formData.salaryAmount}
                   onChange={(e) => setFormData({...formData, salaryAmount: e.target.value})}
-                  className="input-field"
+                  className="input-field w-full"
                 />
               </div>
               <div>
-                <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Salary Type</label>
+                <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">{t('salary_type') || 'Salary Type'}</label>
                 <select 
                   value={formData.salaryType}
                   onChange={(e) => setFormData({...formData, salaryType: e.target.value})}
-                  className="input-field"
+                  className="input-field w-full"
                 >
                   <option value="per_day" className="bg-[#13191C]">Per Day</option>
                   <option value="contract" className="bg-[#13191C]">Total Contract</option>
@@ -242,7 +245,7 @@ const JobBoard = () => {
               </div>
             </div>
 
-            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Amenities Provided</label>
+            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">{t('amenities') || 'Amenities Provided'}</label>
             <div className="flex gap-2 mb-6">
               {amenitiesList.map(a => (
                 <button
@@ -255,7 +258,7 @@ const JobBoard = () => {
               ))}
             </div>
 
-            <button type="submit" className="btn-primary w-full py-3.5 mt-2">Post Job</button>
+            <button type="submit" className="btn-emerald w-full">{t('submit') || 'Post Job'}</button>
           </form>
         </div>
       )}

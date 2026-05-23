@@ -9,8 +9,14 @@ import DiagnoseScan from "./pages/DiagnoseScan";
 import JobBoard from "./pages/JobBoard";
 import Machinery from "./pages/Machinery";
 import Weather from "./pages/Weather";
+import CropMarket from "./pages/CropMarket";
+import Schemes from "./pages/Schemes";
+import Loans from "./pages/Loans";
 import OfflineBanner from "./components/OfflineBanner";
+import LanguageSwitcher from "./components/LanguageSwitcher";
+import VoiceBot from "./components/VoiceBot";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { LanguageProvider } from "./context/LanguageContext";
 
 const App = () => {
   useEffect(() => {
@@ -34,72 +40,100 @@ const App = () => {
   }, []);
 
   return (
-    <BrowserRouter
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true,
-      }}
-    >
-      <Toaster position="top-center" toastOptions={{
-        style: {
-          background: '#13191C',
-          color: '#e2e8f0',
-          border: '1px solid rgba(255,255,255,0.05)',
-        }
-      }}/>
-      <Routes>
-        {/* Public routes — no token required */}
-        <Route path="/" element={<Onboarding />} />
+    <LanguageProvider>
+      <BrowserRouter
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
+        <Toaster position="top-center" toastOptions={{
+          style: {
+            background: '#13191C',
+            color: '#e2e8f0',
+            border: '1px solid rgba(255,255,255,0.05)',
+          }
+        }}/>
+        <LanguageSwitcher />
+        <Routes>
+          {/* Public routes — no token required */}
+          <Route path="/" element={<Onboarding />} />
 
-        {/* Protected routes — require userToken in localStorage.
-            ProtectedRoute reads localStorage directly on every render,
-            so the check survives hard refreshes and offline navigation. */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/diagnose"
-          element={
-            <ProtectedRoute>
-              <DiagnoseScan />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/jobs"
-          element={
-            <ProtectedRoute>
-              <JobBoard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/machinery"
-          element={
-            <ProtectedRoute>
-              <Machinery />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/weather"
-          element={
-            <ProtectedRoute>
-              <Weather />
-            </ProtectedRoute>
-          }
-        />
+          {/* Protected routes — require userToken in localStorage.
+              ProtectedRoute reads localStorage directly on every render,
+              so the check survives hard refreshes and offline navigation. */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/diagnose"
+            element={
+              <ProtectedRoute>
+                <DiagnoseScan />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/jobs"
+            element={
+              <ProtectedRoute>
+                <JobBoard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/machinery"
+            element={
+              <ProtectedRoute>
+                <Machinery />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/weather"
+            element={
+              <ProtectedRoute>
+                <Weather />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/market"
+            element={
+              <ProtectedRoute>
+                <CropMarket />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/schemes"
+            element={
+              <ProtectedRoute>
+                <Schemes />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/loans"
+            element={
+              <ProtectedRoute>
+                <Loans />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Catch-all — redirect unknown paths to root */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-      <OfflineBanner />
-    </BrowserRouter>
+          {/* Catch-all — redirect unknown paths to root */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+        <OfflineBanner />
+        <VoiceBot />
+      </BrowserRouter>
+    </LanguageProvider>
   );
 };
 

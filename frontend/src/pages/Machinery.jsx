@@ -5,9 +5,11 @@ import { AuthContext } from '../context/AuthContext';
 import MachineryCard from '../components/MachineryCard';
 import SyncBadge from '../components/SyncBadge';
 import { useCachedFetch } from '../hooks/useCachedFetch';
+import { useLanguage } from '../context/LanguageContext';
 
 const Machinery = () => {
   const { user } = useContext(AuthContext);
+  const { t } = useLanguage();
   const { data: equipmentListRaw, setData: setEquipmentList, syncedAt, isStale } = useCachedFetch(
     `equipment_${user?.district}`,
     user ? `/api/equipment` : null
@@ -22,7 +24,7 @@ const Machinery = () => {
     brand: '',
     description: '',
     pricePerDay: 1000,
-    contactPhone: user.phone
+    contactPhone: user?.phone || ''
   });
 
   const categories = [
@@ -51,7 +53,7 @@ const Machinery = () => {
       const res = await client.get('/api/equipment/mine');
       setMyEquipment(res.data);
     } catch (err) {
-      toast.error("Failed to load your machinery");
+      toast.error(t('error'));
     }
   };
 
@@ -59,10 +61,10 @@ const Machinery = () => {
     e.preventDefault();
     try {
       await client.post('/api/equipment', formData);
-      toast.success("Equipment listed successfully!");
+      toast.success(t('posted_success') || "Equipment listed successfully!");
       setView('my');
     } catch (err) {
-      toast.error("Failed to list equipment");
+      toast.error(t('error'));
     }
   };
 
@@ -74,19 +76,19 @@ const Machinery = () => {
       // Re-fetch global equipment silently
       client.get('/api/equipment').then(res => setEquipmentList(res.data)).catch(()=>{});
     } catch (err) {
-      toast.error("Failed to update status");
+      toast.error(t('error'));
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this listing?")) return;
+    if (!window.confirm(t('confirm_delete') || "Delete this listing?")) return;
     try {
       await client.delete(`/api/equipment/${id}`);
-      toast.success("Listing deleted");
+      toast.success(t('deleted_success') || "Listing deleted");
       fetchMyEquipment();
       client.get('/api/equipment').then(res => setEquipmentList(res.data)).catch(()=>{});
     } catch (err) {
-      toast.error("Failed to delete listing");
+      toast.error(t('error'));
     }
   };
 
@@ -94,27 +96,27 @@ const Machinery = () => {
 
   return (
     <div className="page-container pb-20">
-      <h1 className="text-white text-3xl font-extrabold mb-1">Rent Machinery</h1>
+      <h1 className="text-white text-3xl font-extrabold mb-1">{t('rent_machinery')}</h1>
       <SyncBadge syncedAt={syncedAt} isStale={isStale} />
 
-      <div className="flex bg-[#13191C] border border-white/5 rounded-xl p-1 gap-1 mb-5">
+      <div className="tab-dock">
         <button 
-          className={`flex-1 py-2 px-3 text-sm font-semibold rounded-lg transition-all duration-150 ${view === 'browse' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`} 
+          className={`tab-pill ${view === 'browse' ? 'active' : ''}`} 
           onClick={() => setView('browse')}
         >
-          Browse
+          {t('market') || 'Browse'}
         </button>
         <button 
-          className={`flex-1 py-2 px-3 text-sm font-semibold rounded-lg transition-all duration-150 ${view === 'my' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`} 
+          className={`tab-pill ${view === 'my' ? 'active' : ''}`} 
           onClick={() => setView('my')}
         >
-          My Machinery
+          {t('my_listings') || 'My Machinery'}
         </button>
         <button 
-          className={`flex-1 py-2 px-3 text-sm font-semibold rounded-lg transition-all duration-150 ${view === 'add' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`} 
+          className={`tab-pill ${view === 'add' ? 'active' : ''}`} 
           onClick={() => setView('add')}
         >
-          + Add
+          + {t('rent_machinery') || 'List Machine'}
         </button>
       </div>
 
@@ -125,7 +127,7 @@ const Machinery = () => {
               className={`text-xs font-semibold px-4 py-2 rounded-full transition-all ${categoryFilter === '' ? "bg-emerald-500 text-black shadow-glow-sm" : "bg-[#13191C] text-slate-300 border border-white/5 hover:bg-[#1A2228] hover:text-white"}`}
               onClick={() => setCategoryFilter('')}
             >
-              All
+              {t('all') || 'All'}
             </button>
             {categories.map(c => (
               <button 
@@ -139,7 +141,7 @@ const Machinery = () => {
             ))}
           </div>
 
-          {filteredList.length === 0 && <p className="text-slate-500 text-center py-8 text-sm">No equipment found.</p>}
+          {filteredList.length === 0 && <p className="text-slate-500 text-center py-8 text-sm">{t('no_listings_found') || 'No equipment found.'}</p>}
           <div className="space-y-3">
             {filteredList.map(item => (
               <MachineryCard key={item._id} equipment={item} isOwner={false} />
@@ -150,7 +152,7 @@ const Machinery = () => {
 
       {view === 'my' && (
         <div className="space-y-3">
-          {myEquipment.length === 0 && <p className="text-slate-500 text-center py-8 text-sm">You haven't listed any equipment.</p>}
+          {myEquipment.length === 0 && <p className="text-slate-500 text-center py-8 text-sm">{t('no_listings_found') || "You haven't listed any equipment."}</p>}
           {myEquipment.map(item => (
             <div key={item._id} style={{ opacity: item.available ? 1 : 0.6 }}>
               <MachineryCard 
@@ -165,53 +167,53 @@ const Machinery = () => {
       )}
 
       {view === 'add' && (
-        <div className="card p-6 shadow-glow-md">
-          <h2 className="text-white text-xl font-bold mb-4">List Equipment</h2>
+        <div className="premium-card">
+          <h2 className="text-white text-xl font-bold mb-4">{t('rent_machinery') || 'List Equipment'}</h2>
           <form onSubmit={handleSubmit}>
-            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Category</label>
+            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">{t('category') || 'Category'}</label>
             <select 
               value={formData.category} 
               onChange={(e) => setFormData({...formData, category: e.target.value})}
-              className="input-field mb-4"
+              className="input-field mb-4 w-full"
             >
               {categories.map(c => <option key={c} value={c} className="bg-[#13191C]">{c}</option>)}
             </select>
 
-            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Brand (Optional)</label>
+            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">{t('brand') || 'Brand (Optional)'}</label>
             <input 
               type="text" 
               placeholder="e.g. Mahindra, John Deere"
               value={formData.brand}
               onChange={(e) => setFormData({...formData, brand: e.target.value})}
-              className="input-field mb-4"
+              className="input-field mb-4 w-full"
             />
 
-            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Description</label>
+            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">{t('description') || 'Description'}</label>
             <input 
               type="text" 
               placeholder="Year, condition, attachments..."
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="input-field mb-4"
+              className="input-field mb-4 w-full"
             />
 
-            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Price Per Day (₹)</label>
+            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">{t('price_per_day') || 'Price Per Day (₹)'}</label>
             <input 
               type="number" min="1" required
               value={formData.pricePerDay}
               onChange={(e) => setFormData({...formData, pricePerDay: e.target.value})}
-              className="input-field mb-4"
+              className="input-field mb-4 w-full"
             />
 
-            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Contact Phone</label>
+            <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">{t('contact') || 'Contact Phone'}</label>
             <input 
               type="tel" required pattern="[0-9]{10}"
               value={formData.contactPhone}
               onChange={(e) => setFormData({...formData, contactPhone: e.target.value})}
-              className="input-field mb-5"
+              className="input-field mb-5 w-full"
             />
 
-            <button type="submit" className="btn-primary w-full py-3.5 mt-2">List Equipment</button>
+            <button type="submit" className="btn-emerald w-full">{t('submit') || 'List Equipment'}</button>
           </form>
         </div>
       )}

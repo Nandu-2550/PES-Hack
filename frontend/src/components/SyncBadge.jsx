@@ -1,7 +1,10 @@
 import React from 'react';
 import { formatSyncTime } from '../db/cache';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function SyncBadge({ syncedAt, isStale }) {
+  const { t } = useLanguage();
+
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 6,
@@ -14,8 +17,8 @@ export default function SyncBadge({ syncedAt, isStale }) {
       <span style={{ width: 6, height: 6, borderRadius: '50%',
         background: isStale ? '#f4a261' : '#52b788',
         display: 'inline-block' }} />
-      {isStale ? '⚠ Offline — ' : '✓ Live — '}
-      Last synced: {formatSyncTime(syncedAt)}
+      {isStale ? `⚠ ${t('offline')} — ` : `✓ ${t('online')} — `}
+      {t('last_updated')}: {formatSyncTime(syncedAt)}
     </div>
   );
 }

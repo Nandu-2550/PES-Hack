@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function OfflineBanner() {
+  const { t } = useLanguage();
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   useEffect(() => {
@@ -34,8 +36,10 @@ export default function OfflineBanner() {
     }}>
       <span style={{ fontSize: 20 }}>⚠</span>
       <div style={{ flex: 1 }}>
-        <h4 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>You're currently offline</h4>
-        <p style={{ margin: 0, fontSize: 12, opacity: 0.8, color: '#f4a261aa' }}>AgriShield is running in offline mode. Syncing is paused.</p>
+        <h4 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>{t('you_are_offline')}</h4>
+        <p style={{ margin: 0, fontSize: 12, opacity: 0.8, color: '#f4a261aa' }}>
+          {t('offline_alert_body') || 'AgriShield is running in offline mode. Syncing is paused.'}
+        </p>
       </div>
     </div>
   );
