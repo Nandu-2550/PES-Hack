@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Landmark, ArrowRight, Info } from 'lucide-react';
 import client from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
+import { TranslatedText } from '../utils/translate';
 
 export default function Loans() {
   const { t } = useLanguage();
@@ -31,7 +32,7 @@ export default function Loans() {
           {t('agri_loans')}
         </h1>
         <p className="text-slate-400 text-xs mt-1">
-          {t('loans_subtitle') || 'Find trusted agricultural credit facilities and crop loans with low interest rates.'}
+          <TranslatedText text="Find trusted agricultural credit facilities and crop loans with low interest rates." />
         </p>
       </div>
 
@@ -52,16 +53,16 @@ export default function Loans() {
             <div key={loan._id} className="premium-card">
               <div className="flex justify-between items-start mb-3">
                 <h2 className="text-white text-lg font-extrabold leading-snug">
-                  {loan.providerName}
+                  <TranslatedText text={loan.providerName} />
                 </h2>
                 <span className="badge badge-interest shrink-0">
-                  {loan.interestRate.includes('%') ? loan.interestRate.split(' ')[0] : 'Subsidized'}
+                  <TranslatedText text={loan.interestRate.includes('%') ? loan.interestRate.split(' ')[0] : 'Subsidized'} />
                 </span>
               </div>
 
               {loan.description && (
                 <p className="text-slate-400 text-sm leading-relaxed mb-4">
-                  {loan.description}
+                  <TranslatedText text={loan.description} />
                 </p>
               )}
 
@@ -70,13 +71,17 @@ export default function Loans() {
                   <span className="text-slate-500 text-xs block uppercase tracking-wider">
                     {t('max_limit') || 'Max Limit'}
                   </span>
-                  <span className="text-white font-bold text-sm">{loan.maxAmount || 'N/A'}</span>
+                  <span className="text-white font-bold text-sm">
+                    <TranslatedText text={loan.maxAmount || 'N/A'} />
+                  </span>
                 </div>
                 <div>
                   <span className="text-slate-500 text-xs block uppercase tracking-wider">
                     {t('interest_rate')}
                   </span>
-                  <span className="text-emerald-400 font-bold text-sm">{loan.interestRate}</span>
+                  <span className="text-emerald-400 font-bold text-sm">
+                    <TranslatedText text={loan.interestRate} />
+                  </span>
                 </div>
               </div>
 
@@ -85,7 +90,9 @@ export default function Loans() {
                   <span className="text-slate-500 text-xs block uppercase tracking-wider mb-1">
                     {t('eligibility') || 'Eligibility'}
                   </span>
-                  <span className="text-slate-300 text-xs leading-relaxed block">{loan.eligibility}</span>
+                  <span className="text-slate-300 text-xs leading-relaxed block">
+                    <TranslatedText text={loan.eligibility} />
+                  </span>
                 </div>
               )}
 
@@ -108,8 +115,7 @@ export default function Loans() {
           <div className="bg-amber-500/5 border border-amber-500/15 p-4 rounded-xl flex gap-3 items-start mt-6">
             <Info className="text-amber-400 shrink-0 mt-0.5" size={16} />
             <p className="text-xs text-amber-300/80 leading-relaxed margin-0">
-              {t('loans_disclaimer') ||
-                'These are informational listings only. Always verify interest rates, processing fees, and loan terms directly with the lending bank or cooperative society before submitting documents.'}
+              <TranslatedText text="These are informational listings only. Always verify interest rates, processing fees, and loan terms directly with the lending bank or cooperative society before submitting documents." />
             </p>
           </div>
         </div>

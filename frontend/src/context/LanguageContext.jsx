@@ -3,9 +3,9 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const translations = {
   en: {
     // Nav
-    home: 'Home', diagnose: 'Diagnose', jobs: 'Jobs',
-    machinery: 'Machinery', weather: 'Weather',
-    market: 'Market', schemes: 'Schemes', loans: 'Loans',
+    home: 'Home', diagnose: 'Diagnose', nav_jobs: 'Jobs',
+    nav_machinery: 'Machinery', weather: 'Weather',
+    market: 'Market', nav_schemes: 'Schemes', nav_loans: 'Loans',
     // Auth
     login: 'Login', register: 'Register', logout: 'Logout',
     name: 'Name', email: 'Email (optional)', phone: 'Phone',
@@ -45,11 +45,55 @@ const translations = {
     mark_unavailable: 'Mark Unavailable',
     brand: 'Brand',
     owner: 'Owner',
+    // Structured dashboard mappings
+    jobs: {
+      title: "Agricultural Jobs",
+      workersNeeded: "Workers Needed",
+      duration: "Duration",
+      salary: "Salary",
+      perDay: "per day",
+      stay: "Accommodation",
+      postedBy: "Posted by",
+      callToApply: "Call to Apply",
+      harvesting: "Harvesting",
+      planting: "Planting",
+      irrigation: "Irrigation",
+      days: "days",
+      noJobs: "No jobs available"
+    },
+    machinery: {
+      title: "Agricultural Machinery",
+      rentPerDay: "Rent per day",
+      available: "Available",
+      unavailable: "Unavailable",
+      bookNow: "Book Now",
+      owner: "Owner",
+      location: "Location",
+      tractor: "Tractor",
+      harvester: "Harvester",
+      sprayer: "Sprayer"
+    },
+    loans: {
+      title: "Agricultural Loans",
+      maxLimit: "Maximum Limit",
+      interestRate: "Interest Rate",
+      eligibility: "Eligibility",
+      applyNow: "Apply Now",
+      learnMore: "Learn More",
+      perAnnum: "per annum"
+    },
+    schemes: {
+      title: "Government Schemes",
+      applyNow: "Apply Now",
+      deadline: "Deadline",
+      benefit: "Benefit",
+      eligibility: "Eligibility"
+    }
   },
   kn: {
-    home: 'ಮುಖಪುಟ', diagnose: 'ರೋಗ ಪತ್ತೆ', jobs: 'ಕೆಲಸಗಳು',
-    machinery: 'ಯಂತ್ರೋಪಕರಣ', weather: 'ಹವಾಮಾನ',
-    market: 'ಮಾರುಕಟ್ಟೆ', schemes: 'ಯೋಜನೆಗಳು', loans: 'ಸಾಲಗಳು',
+    home: 'ಮುಖಪುಟ', diagnose: 'ರೋಗ ಪತ್ತೆ', nav_jobs: 'ಕೆಲಸಗಳು',
+    nav_machinery: 'ಯಂತ್ರೋಪಕರಣ', weather: 'ಹವಾಮಾನ',
+    market: 'ಮಾರುಕಟ್ಟೆ', nav_schemes: 'ಯೋಜನೆಗಳು', nav_loans: 'ಸಾಲಗಳು',
     login: 'ಲಾಗಿನ್', register: 'ನೋಂದಣಿ', logout: 'ಲಾಗ್ ಔಟ್',
     name: 'ಹೆಸರು', email: 'ಇಮೇಲ್ (ಐಚ್ಛಿಕ)', phone: 'ಫೋನ್',
     password: 'ಪಾಸ್ವರ್ಡ್', state: 'ರಾಜ್ಯ', district: 'ಜಿಲ್ಲೆ',
@@ -82,11 +126,55 @@ const translations = {
     mark_unavailable: 'ಲಭ್ಯವಿಲ್ಲವೆಂದು ಗುರುತಿಸಿ',
     brand: 'ಬ್ರಾಂಡ್',
     owner: 'ಮಾಲೀಕರು',
+    // Structured dashboard mappings in Kannada
+    jobs: {
+      title: "ಕೃಷಿ ಉದ್ಯೋಗಗಳು",
+      workersNeeded: "ಅಗತ್ಯ ಕಾರ್ಮಿಕರು",
+      duration: "ಅವಧಿ",
+      salary: "ವೇತನ",
+      perDay: "ಪ್ರತಿ ದಿನ",
+      stay: "ವಸತಿ",
+      postedBy: "ಪೋಸ್ಟ್ ಮಾಡಿದ್ದಾರೆ",
+      callToApply: "ಅರ್ಜಿ ಸಲ್ಲಿಸಲು ಕರೆ ಮಾಡಿ",
+      harvesting: "ಕೊಯ್ಲು",
+      planting: "ನಾಟಿ",
+      irrigation: "ಸೀರಾವರಿ",
+      days: "ದಿನಗಳು",
+      noJobs: "ಯಾವುದೇ ಉದ್ಯೋಗಗಳಿಲ್ಲ"
+    },
+    machinery: {
+      title: "ಕೃಷಿ ಯಂತ್ರೋಪಕರಣ",
+      rentPerDay: "ಪ್ರತಿ ದಿನ ಬಾಡಿಗೆ",
+      available: "ಲಭ್ಯವಿದೆ",
+      unavailable: "ಲಭ್ಯವಿಲ್ಲ",
+      bookNow: "ಈಗ ಬುಕ್ ಮಾಡಿ",
+      owner: "ಮಾಲೀಕ",
+      location: "ಸ್ಥಳ",
+      tractor: "ಟ್ರಾಕ್ಟರ್",
+      harvester: "ಕೊಯ್ಲು ಯಂತ್ರ",
+      sprayer: "ಸಿಂಪಡಿಸುವ ಯಂತ್ರ"
+    },
+    loans: {
+      title: "ಕೃಷಿ ಸಾಲಗಳು",
+      maxLimit: "ಗರಿಷ್ಠ ಮಿತಿ",
+      interestRate: "ಬಡ್ಡಿ ದರ",
+      eligibility: "ಅರ್ಹತೆ",
+      applyNow: "ಈಗ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ",
+      learnMore: "ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ",
+      perAnnum: "ಪ್ರತಿ ವರ್ಷ"
+    },
+    schemes: {
+      title: "ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು",
+      applyNow: "ಈಗ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ",
+      deadline: "ಕೊನೆಯ ದಿನಾಂಕ",
+      benefit: "ಪ್ರಯೋಜನ",
+      eligibility: "ಅರ್ಹತೆ"
+    }
   },
   hi: {
-    home: 'होम', diagnose: 'जाँच करें', jobs: 'काम',
-    machinery: 'मशीनरी', weather: 'मौसम',
-    market: 'बाज़ार', schemes: 'योजनाएं', loans: 'ऋण',
+    home: 'होम', diagnose: 'जाँच करें', nav_jobs: 'काम',
+    nav_machinery: 'मशीनरी', weather: 'मौसम',
+    market: 'बाज़ार', nav_schemes: 'योजनाएं', nav_loans: 'ऋण',
     login: 'लॉगिन', register: 'पंजीकरण', logout: 'लॉग आउट',
     name: 'नाम', email: 'ईमेल (वैकल्पिक)', phone: 'फ़ोन',
     password: 'पासवर्ड', state: 'राज्य', district: 'जिला',
@@ -111,7 +199,7 @@ const translations = {
     loading: 'लोड हो रहा है...', error: 'कुछ गलत हुआ',
     save: 'सहेजें', cancel: 'रद्द करें', submit: 'जमा करें',
     online: 'ऑनलाइन', offline: 'ऑफलाइन',
-    you_are_offline: 'आप ऑफलाइन हैं। कैश किया गया डेटा दिखाया जा रहा है।',
+    you_are_offline: 'आप offline हैं। कैश किया गया डेटा दिखाया जा रहा है।',
     synced: 'सिंक हो गया', last_updated: 'अंतिम अपडेट',
     unavailable: 'अनुपलब्ध',
     call_owner: 'मालिक को कॉल करें',
@@ -119,6 +207,50 @@ const translations = {
     mark_unavailable: 'अनुपलब्ध चिह्नित करें',
     brand: 'ब्रांड',
     owner: 'मालिक',
+    // Structured dashboard mappings in Hindi
+    jobs: {
+      title: "कृषि नौकरियां",
+      workersNeeded: "आवश्यक मजदूर",
+      duration: "अवधि",
+      salary: "वेतन",
+      perDay: "प्रति दिन",
+      stay: "आवास",
+      postedBy: "पोस्ट किया",
+      callToApply: "आवेदन के लिए कॉल करें",
+      harvesting: "कटाई",
+      planting: "रोपाई",
+      irrigation: "सिंचाई",
+      days: "दिन",
+      noJobs: "कोई नौकरी उपलब्ध नहीं"
+    },
+    machinery: {
+      title: "कृषि मशीनरी",
+      rentPerDay: "प्रति दिन किराया",
+      available: "उपलब्ध",
+      unavailable: "अनुपलब्ध",
+      bookNow: "अभी बुक करें",
+      owner: "मालिक",
+      location: "स्थान",
+      tractor: "ट्रैक्टर",
+      harvester: "हार्वेस्टर",
+      sprayer: "स्प्रेयर"
+    },
+    loans: {
+      title: "कृषि ऋण",
+      maxLimit: "अधिकतम सीमा",
+      interestRate: "ब्याज दर",
+      eligibility: "पात्रता",
+      applyNow: "अभी आवेदन करें",
+      learnMore: "और जानें",
+      perAnnum: "प्रति वर्ष"
+    },
+    schemes: {
+      title: "सरकारी योजनाएं",
+      applyNow: "अभी आवेदन करें",
+      deadline: "अंतिम तिथि",
+      benefit: "लाभ",
+      eligibility: "पात्रता"
+    }
   },
 };
 
@@ -131,7 +263,13 @@ export const LanguageProvider = ({ children }) => {
     localStorage.setItem('agrishield_lang', lang);
   }, [lang]);
 
-  const t = (key) => translations[lang]?.[key] ?? translations['en']?.[key] ?? key;
+  const t = (key) => {
+    if (key.includes('.')) {
+      const parts = key.split('.');
+      return translations[lang]?.[parts[0]]?.[parts[1]] ?? translations['en']?.[parts[0]]?.[parts[1]] ?? key;
+    }
+    return translations[lang]?.[key] ?? translations['en']?.[key] ?? key;
+  };
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t }}>

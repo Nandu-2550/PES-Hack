@@ -112,7 +112,7 @@ const JobBoard = () => {
 
   return (
     <div className="page-container pb-20">
-      <h1 className="text-white text-3xl font-extrabold mb-1">{t('govt_schemes') ? t('jobs') : 'Job Board'}</h1>
+      <h1 className="text-white text-3xl font-extrabold mb-1">{t('jobs.title') || 'Job Board'}</h1>
       <SyncBadge syncedAt={syncedAt} isStale={isStale} />
       
       {/* View Toggles */}
@@ -133,7 +133,7 @@ const JobBoard = () => {
           className={`tab-pill ${view === 'post' ? 'active' : ''}`} 
           onClick={() => setView('post')}
         >
-          + {t('jobs') || 'Post Job'}
+          + {t('nav_jobs') || 'Post Job'}
         </button>
       </div>
 
@@ -185,7 +185,7 @@ const JobBoard = () => {
 
       {view === 'post' && (
         <div className="premium-card">
-          <h2 className="text-white text-xl font-bold mb-4">{t('jobs') || 'Post a New Job'}</h2>
+          <h2 className="text-white text-xl font-bold mb-4">{t('jobs.title') || 'Post a New Job'}</h2>
           <form onSubmit={handlePostSubmit}>
             <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">{t('category') || 'Work Type'}</label>
             <select 

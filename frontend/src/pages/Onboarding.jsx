@@ -172,8 +172,7 @@ const Onboarding = () => {
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M14 12a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
         </div>
-        <h1 className="text-white text-3xl font-extrabold tracking-tight">AgriShield AI</h1>
-        <p className="text-slate-400 text-xs mt-1">Smart On-Device Disease Diagnosis</p>
+        <h1 className="text-white text-3xl font-extrabold tracking-tight">AgriShield</h1>
       </div>
 
       <div className="card w-full max-w-md p-8 shadow-glow-lg border border-white/5 relative z-10">

@@ -2,7 +2,8 @@
   "compilerOptions": {
     "allowJs": true,
     "checkJs": false,
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
+    "module": "node16",          // Align 'module' with 'moduleResolution' for Node.js
     "resolveJsonModule": true
   },
   "exclude": ["node_modules"]

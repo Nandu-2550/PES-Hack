@@ -1,15 +1,22 @@
 import React from 'react';
 import { Phone, Check, X } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { TranslatedText } from '../utils/translate';
 
 const MachineryCard = ({ equipment, isOwner, onToggleAvailable, onDelete }) => {
   const { t } = useLanguage();
+
+  const getCategoryTranslation = () => {
+    const key = `machinery.${equipment.category?.toLowerCase()}`;
+    const trans = t(key);
+    return trans !== key ? trans : equipment.category;
+  };
 
   return (
     <div className="premium-card">
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-white font-semibold text-base leading-snug" style={{ margin: 0 }}>
-          {equipment.category}
+          {getCategoryTranslation()}
         </h3>
         <span className={`badge ${equipment.available ? 'badge-available' : 'badge-sold'}`}>
           {equipment.available ? t('available') : t('unavailable')}
@@ -18,22 +25,26 @@ const MachineryCard = ({ equipment, isOwner, onToggleAvailable, onDelete }) => {
       
       {equipment.brand && (
         <p className="mb-1 text-sm text-slate-300">
-          <strong>{t('brand') || 'Brand'}:</strong> {equipment.brand}
+          <strong>{t('brand') || 'Brand'}:</strong> <TranslatedText text={equipment.brand} />
         </p>
       )}
       <p className="mb-2 text-sm text-slate-400">
-        {equipment.description || "No description provided."}
+        {equipment.description ? (
+          <TranslatedText text={equipment.description} />
+        ) : (
+          t('no_description') || "No description provided."
+        )}
       </p>
 
       <div className="mb-3">
         <span className="text-emerald-400 font-bold text-lg">
           ₹{equipment.pricePerDay}
         </span>
-        <span className="text-slate-500 text-xs"> / day</span>
+        <span className="text-slate-500 text-xs"> / {t('jobs.perDay') || 'day'}</span>
       </div>
 
       <p className="mb-2 text-xs text-slate-500">
-        {t('owner') || 'Owner'}: {equipment.owner?.name || 'Unknown'} • {equipment.district}
+        {t('owner') || 'Owner'}: <TranslatedText text={equipment.owner?.name || 'Unknown'} /> • <TranslatedText text={equipment.district} />
       </p>
 
       {isOwner ? (
@@ -69,3 +80,4 @@ const MachineryCard = ({ equipment, isOwner, onToggleAvailable, onDelete }) => {
 };
 
 export default MachineryCard;
+

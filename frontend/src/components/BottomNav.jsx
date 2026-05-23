@@ -26,12 +26,12 @@ const BottomNav = () => {
     }}>
       <NavItem to="/dashboard" icon={<Home size={18} />} label={t('home')} />
       <NavItem to="/diagnose" icon={<ScanLine size={18} />} label={t('diagnose')} />
-      <NavItem to="/jobs" icon={<Briefcase size={18} />} label={t('jobs')} />
-      <NavItem to="/machinery" icon={<Tractor size={18} />} label={t('machinery')} />
+      <NavItem to="/jobs" icon={<Briefcase size={18} />} label={t('nav_jobs')} />
+      <NavItem to="/machinery" icon={<Tractor size={18} />} label={t('nav_machinery')} />
       <NavItem to="/weather" icon={<CloudSun size={18} />} label={t('weather')} />
       <NavItem to="/market" icon={<ShoppingBasket size={18} />} label={t('market')} />
-      <NavItem to="/schemes" icon={<FileText size={18} />} label={t('schemes')} />
-      <NavItem to="/loans" icon={<Banknote size={18} />} label={t('loans')} />
+      <NavItem to="/schemes" icon={<FileText size={18} />} label={t('nav_schemes')} />
+      <NavItem to="/loans" icon={<Banknote size={18} />} label={t('nav_loans')} />
     </nav>
   );
 };

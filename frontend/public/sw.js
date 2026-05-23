@@ -41,13 +41,17 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (request.method !== 'GET') return;
 
+  const isSameOrigin = url.origin === self.location.origin;
+
   // API calls — network first, cache fallback
   if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/diagnose')) {
     event.respondWith(
       fetch(request)
         .then((res) => {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then((c) => c.put(request, clone));
+          if (res && res.status === 200 && isSameOrigin) {
+            const clone = res.clone(); // Synchronous clone
+            caches.open(CACHE_NAME).then((c) => c.put(request, clone));
+          }
           return res;
         })
         .catch(() => caches.match(request))
@@ -62,7 +66,10 @@ self.addEventListener('fetch', (event) => {
         (cached) =>
           cached ||
           fetch(request).then((res) => {
-            caches.open(CACHE_NAME).then((c) => c.put(request, res.clone()));
+            if (res && res.status === 200) {
+              const clone = res.clone(); // Synchronous clone
+              caches.open(CACHE_NAME).then((c) => c.put(request, clone));
+            }
             return res;
           })
       )
@@ -78,16 +85,33 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // JS/CSS/image assets — stale-while-revalidate
+  // JS/CSS/image assets — stale-while-revalidate (same origin only to prevent opaque cloning errors)
   event.respondWith(
     caches.match(request).then((cached) => {
-      const networkFetch = fetch(request)
-        .then((res) => {
-          caches.open(CACHE_NAME).then((c) => c.put(request, res.clone()));
-          return res;
-        })
-        .catch(() => cached);
-      return cached || networkFetch;
+      if (!isSameOrigin) {
+        return cached || fetch(request);
+      }
+
+      if (cached) {
+        // Fetch fresh version in background and update cache silently
+        fetch(request)
+          .then((res) => {
+            if (res && res.status === 200) {
+              const clone = res.clone(); // Synchronous clone
+              caches.open(CACHE_NAME).then((c) => c.put(request, clone));
+            }
+          })
+          .catch(() => {});
+        return cached;
+      }
+
+      return fetch(request).then((res) => {
+        if (res && res.status === 200) {
+          const clone = res.clone(); // Synchronous clone
+          caches.open(CACHE_NAME).then((c) => c.put(request, clone));
+        }
+        return res;
+      });
     })
   );
 });

@@ -7,6 +7,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import SyncBadge from '../components/SyncBadge';
 import { useCachedFetch } from '../hooks/useCachedFetch';
+import { TranslatedText } from '../utils/translate';
 
 export default function CropMarket() {
   const { user } = useContext(AuthContext);
@@ -166,16 +167,20 @@ export default function CropMarket() {
                 <div key={item._id} className="premium-card">
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <h2 className="text-white text-xl font-bold">{item.cropName}</h2>
+                      <h2 className="text-white text-xl font-bold">
+                        <TranslatedText text={item.cropName} />
+                      </h2>
                       <p className="text-slate-400 text-xs mt-0.5">
-                        📍 {item.location}, {item.district}
+                        📍 <TranslatedText text={item.location} />, <TranslatedText text={item.district} />
                       </p>
                     </div>
                     <span className="badge badge-available">{t('available')}</span>
                   </div>
 
                   {item.description && (
-                    <p className="text-slate-400 text-sm mb-4 line-clamp-2">{item.description}</p>
+                    <p className="text-slate-400 text-sm mb-4 line-clamp-2">
+                      <TranslatedText text={item.description} />
+                    </p>
                   )}
 
                   <div className="grid grid-cols-2 gap-4 border-t border-white/5 pt-3 mb-4">
@@ -195,7 +200,7 @@ export default function CropMarket() {
 
                   <div className="border-t border-white/5 pt-3 flex flex-col gap-2">
                     <p className="text-xs text-slate-500">
-                      {t('seller_info')}: {item.sellerName}
+                      {t('seller_info')}: <TranslatedText text={item.sellerName} />
                     </p>
                     <a
                       href={`tel:${item.sellerContact}`}
@@ -317,8 +322,12 @@ export default function CropMarket() {
                 <div key={item._id} className="premium-card">
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <h2 className="text-white text-xl font-bold">{item.cropName}</h2>
-                      <p className="text-slate-400 text-xs mt-0.5">📍 {item.location}</p>
+                      <h2 className="text-white text-xl font-bold">
+                        <TranslatedText text={item.cropName} />
+                      </h2>
+                      <p className="text-slate-400 text-xs mt-0.5">
+                        📍 <TranslatedText text={item.location} />
+                      </p>
                     </div>
                     <span
                       className={`badge ${

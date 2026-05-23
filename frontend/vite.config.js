@@ -71,7 +71,7 @@ export default defineConfig({
 
       // Web App Manifest — required for PWA installability
       manifest: {
-        name: "AgriShield AI",
+        name: "AgriShield",
         short_name: "AgriShield",
         description: "Mobile-first agricultural platform for rural farmers",
         theme_color: "#1a3a2a",

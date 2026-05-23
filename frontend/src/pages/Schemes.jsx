@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FileText, ExternalLink } from 'lucide-react';
 import client from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
+import { TranslatedText } from '../utils/translate';
 
 export default function Schemes() {
   const { t } = useLanguage();
@@ -31,7 +32,7 @@ export default function Schemes() {
           {t('govt_schemes')}
         </h1>
         <p className="text-slate-400 text-xs mt-1">
-          {t('schemes_subtitle') || 'Explore active government schemes and agricultural benefits designed for you.'}
+          <TranslatedText text="Explore active government schemes and agricultural benefits designed for you." />
         </p>
       </div>
 
@@ -52,10 +53,10 @@ export default function Schemes() {
             <div key={scheme._id} className="premium-card flex flex-col justify-between">
               <div>
                 <h2 className="text-white text-xl font-bold mb-2 flex items-center gap-2">
-                  {scheme.title}
+                  <TranslatedText text={scheme.title} />
                 </h2>
                 <p className="text-slate-400 text-sm leading-relaxed mb-4">
-                  {scheme.summary}
+                  <TranslatedText text={scheme.summary} />
                 </p>
               </div>
 
@@ -84,3 +85,4 @@ export default function Schemes() {
     </div>
   );
 }
+

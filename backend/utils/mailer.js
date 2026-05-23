@@ -1,7 +1,43 @@
-const axios = require('axios');
+const SibApiV3Sdk = require('sib-api-v3-sdk');
 
-const BREVO_API_KEY = process.env.BREVO_API_KEY;
-const BREVO_URL = 'https://api.brevo.com/v3/smtp/email';
+const client = SibApiV3Sdk.ApiClient.instance;
+const apiKey = client.authentications['api-key'];
+apiKey.apiKey = process.env.BREVO_API_KEY;
+
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+
+/**
+ * sendEmail()
+ *
+ * Exposes a generic SDK mailer dispatch wrapper.
+ */
+async function sendEmail({ to, toName, subject, htmlContent, textContent }) {
+  if (!process.env.BREVO_API_KEY) {
+    console.warn('[Mailer] BREVO_API_KEY not configured — skipping email dispatch.');
+    return { success: false, error: 'API key not configured' };
+  }
+
+  const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+
+  sendSmtpEmail.sender = {
+    email: process.env.BREVO_SENDER_EMAIL || 'nandunusgavai@gmail.com',
+    name: process.env.BREVO_SENDER_NAME || 'AgriShield'
+  };
+
+  sendSmtpEmail.to = [{ email: to, name: toName || to }];
+  sendSmtpEmail.subject = subject;
+  sendSmtpEmail.htmlContent = htmlContent;
+  if (textContent) sendSmtpEmail.textContent = textContent;
+
+  try {
+    const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log('[Mailer] Email successfully dispatched via Brevo SDK:', result.messageId);
+    return { success: true, messageId: result.messageId };
+  } catch (error) {
+    console.error('[Mailer] Brevo SDK email error details:', error.response?.text || error.message);
+    throw error;
+  }
+}
 
 const langSubjects = {
   en: (crop) => `New Crop Listed: ${crop}`,
@@ -11,7 +47,7 @@ const langSubjects = {
 
 const langBody = {
   en: (crop, district, price, seller, phone) =>
-    `<p>A new crop <strong>${crop}</strong> has been listed in <strong>${district}</strong> at ₹${price}/kg.</p><p>Contact seller <strong>${seller}</strong> at <strong>${phone}</strong> directly.</p><p>Visit AgriHub to view details.</p>`,
+    `<p>A new crop <strong>${crop}</strong> has been listed in <strong>${district}</strong> at ₹${price}/kg.</p><p>Contact seller <strong>${seller}</strong> at <strong>${phone}</strong> directly.</p><p>Visit AgriShield to view details.</p>`,
   kn: (crop, district, price, seller, phone) =>
     `<p><strong>${district}</strong> ನಲ್ಲಿ ₹${price}/kg ಬೆಲೆಗೆ ಹೊಸ ಬೆಳೆ <strong>${crop}</strong> ಲಿಸ್ಟ್ ಮಾಡಲಾಗಿದೆ.</p><p>ಮಾರಾಟಗಾರ <strong>${seller}</strong> ಅವರನ್ನು <strong>${phone}</strong> ನಲ್ಲಿ ಸಂಪರ್ಕಿಸಿ.</p>`,
   hi: (crop, district, price, seller, phone) =>
@@ -19,50 +55,29 @@ const langBody = {
 };
 
 /**
- * Send a crop-listed notification email.
- * @param {Object} params
- * @param {string} params.toEmail
- * @param {string} params.toName
- * @param {string} params.lang  - 'en' | 'kn' | 'hi'
- * @param {Object} params.crop  - { cropName, district, pricePerKg, sellerName, sellerContact }
+ * sendCropNotification()
+ *
+ * Triggers regional dispatches when a crop is listed in the district.
  */
 async function sendCropNotification({ toEmail, toName, lang = 'en', crop }) {
-  if (!BREVO_API_KEY) {
-    console.warn('[Mailer] BREVO_API_KEY not set — skipping email.');
-    return;
-  }
   try {
     const subject = langSubjects[lang]?.(crop.cropName) ?? langSubjects.en(crop.cropName);
     const htmlContent = langBody[lang]?.(
       crop.cropName, crop.district, crop.pricePerKg, crop.sellerName, crop.sellerContact
     ) ?? langBody.en(crop.cropName, crop.district, crop.pricePerKg, crop.sellerName, crop.sellerContact);
 
-    await axios.post(
-      BREVO_URL,
-      {
-        sender: { name: 'AgriHub', email: 'noreply@agrihub.app' },
-        to: [{ email: toEmail, name: toName }],
-        subject,
-        htmlContent,
-      },
-      {
-        headers: {
-          'api-key': BREVO_API_KEY,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-    console.log(`[Mailer] Crop notification sent to ${toEmail}`);
+    return await sendEmail({ to: toEmail, toName, subject, htmlContent });
   } catch (err) {
-    console.error('[Mailer] Failed to send email:', err.response?.data || err.message);
+    console.error('[Mailer] Crop regional dispatch failed:', err.message);
   }
 }
 
 /**
- * Send a government scheme notification email.
+ * sendSchemeNotification()
+ *
+ * Triggers dispatch when a government scheme is announced.
  */
 async function sendSchemeNotification({ toEmail, toName, lang = 'en', scheme }) {
-  if (!BREVO_API_KEY) return;
   try {
     const subjects = {
       en: `New Government Scheme: ${scheme.title}`,
@@ -75,19 +90,15 @@ async function sendSchemeNotification({ toEmail, toName, lang = 'en', scheme }) 
       hi: `<p><strong>${scheme.title}</strong></p><p>${scheme.summary}</p><p><a href="${scheme.applicationLink}">अभी आवेदन करें →</a></p>`,
     };
 
-    await axios.post(
-      BREVO_URL,
-      {
-        sender: { name: 'AgriHub', email: 'noreply@agrihub.app' },
-        to: [{ email: toEmail, name: toName }],
-        subject: subjects[lang] ?? subjects.en,
-        htmlContent: bodies[lang] ?? bodies.en,
-      },
-      { headers: { 'api-key': BREVO_API_KEY, 'Content-Type': 'application/json' } }
-    );
+    return await sendEmail({
+      to: toEmail,
+      toName,
+      subject: subjects[lang] ?? subjects.en,
+      htmlContent: bodies[lang] ?? bodies.en
+    });
   } catch (err) {
-    console.error('[Mailer] Scheme email failed:', err.response?.data || err.message);
+    console.error('[Mailer] Scheme broadcast failed:', err.message);
   }
 }
 
-module.exports = { sendCropNotification, sendSchemeNotification };
+module.exports = { sendEmail, sendCropNotification, sendSchemeNotification };
