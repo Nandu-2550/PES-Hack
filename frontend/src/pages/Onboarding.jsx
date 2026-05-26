@@ -92,6 +92,8 @@ const Onboarding = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showOTP, setShowOTP] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [fieldError, setFieldError] = useState({ email: '', phone: '' });
   const [formData, setFormData] = useState({
     name: '',
     identifier: '', // Used for login (email or phone)
@@ -117,6 +119,8 @@ const Onboarding = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
+    setFieldError({ email: '', phone: '' });
     try {
       if (isLogin) {
         const payload = formData.identifier.includes('@')
@@ -130,11 +134,12 @@ const Onboarding = () => {
         persistSession(response.data.token, response.data.user);
 
         toast.success("Welcome back!");
+        setSubmitting(false);
         navigate('/dashboard');
       } else {
         const response = await register({
           name: formData.name,
-          phone: formData.phone,
+          phone: formData.phone.startsWith('+') ? formData.phone : `+91${formData.phone}`,
           email: formData.email,
           password: formData.password,
           state: formData.state,
@@ -145,14 +150,23 @@ const Onboarding = () => {
         persistSession(response.data.token, response.data.user);
 
         toast.success("Registration successful! Verify OTP.");
+        setSubmitting(false);
         setShowOTP(true);
       }
     } catch (err) {
+      setSubmitting(false);
       // Surface storage quota errors and auth errors the same way
       const message =
         err.message && !err.response
           ? err.message // Our own persistSession error
-          : (err.response?.data?.errors?.[0]?.msg || "An error occurred");
+          : (err.response?.data?.msg || err.response?.data?.errors?.[0]?.msg || "Invalid details. Please try again.");
+
+      if (message.toLowerCase().includes('email')) {
+        setFieldError(prev => ({ ...prev, email: message }));
+      } else if (message.toLowerCase().includes('phone')) {
+        setFieldError(prev => ({ ...prev, phone: message }));
+      }
+
       toast.error(message);
     }
   };
@@ -194,14 +208,16 @@ const Onboarding = () => {
               <input
                 type="email" name="email" placeholder="Email Address (Optional)"
                 value={formData.email} onChange={handleChange}
-                className="input-field mb-4"
+                className={`input-field ${fieldError.email ? 'border-red-500 border mb-1' : 'mb-4'}`}
               />
+              {fieldError.email && <p className="text-red-500 text-sm mb-4 pl-1">{fieldError.email}</p>}
               <input
                 type="tel" name="phone" placeholder="Phone Number" required
                 pattern="[0-9]{10}" title="10 digit phone number"
                 value={formData.phone} onChange={handleChange}
-                className="input-field mb-4"
+                className={`input-field ${fieldError.phone ? 'border-red-500 border mb-1' : 'mb-4'}`}
               />
+              {fieldError.phone && <p className="text-red-500 text-sm mb-4 pl-1">{fieldError.phone}</p>}
             </>
           )}
 
@@ -244,8 +260,8 @@ const Onboarding = () => {
             </div>
           )}
 
-          <button type="submit" className="btn-primary w-full py-3.5 font-bold mb-4 mt-2">
-            {isLogin ? 'Login' : 'Register'}
+          <button type="submit" disabled={submitting} className="btn-primary w-full py-3.5 font-bold mb-4 mt-2 disabled:opacity-50 disabled:cursor-not-allowed">
+            {submitting ? 'Please wait...' : (isLogin ? 'Login' : 'Register')}
           </button>
         </form>
 

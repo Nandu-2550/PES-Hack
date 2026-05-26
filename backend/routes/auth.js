@@ -5,13 +5,15 @@ const jwt = require("jsonwebtoken");
 const { body, validationResult } = require("express-validator");
 const User = require("../models/User");
 const auth = require("../middleware/auth");
+const { validate } = require("deep-email-validator");
+const { isValidPhoneNumber } = require("libphonenumber-js");
 
 // @route   POST api/auth/register
 router.post(
   "/register",
   [
     body("name", "Name is required").not().isEmpty(),
-    body("phone", "Please include a valid 10-digit phone number").isLength({ min: 10, max: 10 }),
+    body("phone", "Please include a valid phone number").isLength({ min: 10, max: 15 }),
     body("email", "Please include a valid email").optional().isEmail(),
     body("password", "Please enter a password with 6 or more characters").isLength({ min: 6 }),
     body("district", "District is required").not().isEmpty()
@@ -23,6 +25,26 @@ router.post(
     const { name, phone, email, password, state, district } = req.body;
 
     try {
+      if (email) {
+        const emailCheck = await validate({
+          email: email,
+          validateSMTP: true,
+        });
+
+        if (!emailCheck.valid) {
+          return res.status(400).json({
+            msg: 'The email address specified does not exist. Please enter a valid, active email.',
+          });
+        }
+      }
+
+      const isPhoneValid = isValidPhoneNumber(phone, 'IN');
+      if (!isPhoneValid) {
+        return res.status(400).json({
+          msg: 'The phone number is invalid. Please enter a real, active phone number.',
+        });
+      }
+
       let userByPhone = await User.findOne({ phone });
       if (userByPhone) {
         return res.status(400).json({ errors: [{ msg: "User with this phone already exists" }] });
