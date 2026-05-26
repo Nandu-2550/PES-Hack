@@ -7,11 +7,14 @@ import JobCard from '../components/JobCard';
 import SyncBadge from '../components/SyncBadge';
 import { useCachedFetch } from '../hooks/useCachedFetch';
 import { useLanguage } from '../context/LanguageContext';
+import GlassCard from '../components/ui/GlassCard';
+import { SkeletonJobGrid } from '../components/ui/SkeletonCard';
 
 const JobBoard = () => {
   const { user } = useContext(AuthContext);
   const { t } = useLanguage();
-  const { data: jobsRaw, setData: setJobs, syncedAt, isStale } = useCachedFetch(
+  const [loading, setLoading] = useState(false);
+  const { data: jobsRaw, setData: setJobs, syncedAt, isStale, loading: feedLoading } = useCachedFetch(
     `jobs_${user?.district}`,
     user ? `/api/jobs` : null
   );
@@ -56,11 +59,18 @@ const JobBoard = () => {
   }, [view]);
 
   const fetchMyJobs = async () => {
+    setLoading(true);
+    const t0 = Date.now();
     try {
       const res = await client.get('/api/jobs/mine');
-      setMyJobs(res.data);
+      const wait = Math.max(0, 300 - (Date.now() - t0));
+      setTimeout(() => {
+        setMyJobs(res.data);
+        setLoading(false);
+      }, wait);
     } catch (err) {
-      toast.error(t('error'));
+      setLoading(false);
+      toast.error('Connection slow — retrying…', { duration: 5000 });
     }
   };
 
@@ -153,19 +163,29 @@ const JobBoard = () => {
             <option value="General" className="bg-[#13191C]">General</option>
           </select>
 
-          {filteredJobs.length === 0 && <p className="text-slate-500 text-center py-8 text-sm">{t('no_listings_found') || 'No jobs found.'}</p>}
-          <div className="space-y-3">
+          {feedLoading ? (
+            <SkeletonJobGrid count={4} />
+          ) : (
+            <>
+              {filteredJobs.length === 0 && <p className="text-slate-500 text-center py-8 text-sm">{t('no_listings_found') || 'No jobs found.'}</p>}
+              <div className="space-y-3">
             {filteredJobs.map(job => (
               <JobCard key={job._id} job={job} isOwner={false} />
             ))}
-          </div>
+              </div>
+            </>
+          )}
         </>
       )}
 
       {view === 'my' && (
         <div className="space-y-3">
-          {myJobs.length === 0 && <p className="text-slate-500 text-center py-8 text-sm">{t('no_listings_found') || "You haven't posted any jobs."}</p>}
-          {myJobs.map(job => (
+          {loading ? (
+            <SkeletonJobGrid count={3} />
+          ) : (
+            <>
+              {myJobs.length === 0 && <p className="text-slate-500 text-center py-8 text-sm">{t('no_listings_found') || "You haven't posted any jobs."}</p>}
+              {myJobs.map(job => (
             <div key={job._id} style={{ opacity: job.status === 'completed' ? 0.5 : 1 }}>
               {job.status === 'completed' && (
                 <span className="inline-block bg-yellow-500/10 text-yellow-400 text-xs font-semibold px-2 py-0.5 rounded border border-yellow-500/20 mb-2">
@@ -179,12 +199,14 @@ const JobBoard = () => {
                 onDelete={handleDelete} 
               />
             </div>
-          ))}
+              ))}
+            </>
+          )}
         </div>
       )}
 
       {view === 'post' && (
-        <div className="premium-card">
+        <GlassCard>
           <h2 className="text-white text-xl font-bold mb-4">{t('jobs.title') || 'Post a New Job'}</h2>
           <form onSubmit={handlePostSubmit}>
             <label className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1.5 block">{t('category') || 'Work Type'}</label>
@@ -260,7 +282,7 @@ const JobBoard = () => {
 
             <button type="submit" className="btn-emerald w-full">{t('submit') || 'Post Job'}</button>
           </form>
-        </div>
+        </GlassCard>
       )}
 
     </div>

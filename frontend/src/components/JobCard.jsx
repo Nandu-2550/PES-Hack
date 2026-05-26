@@ -2,6 +2,7 @@ import React from 'react';
 import { Phone, CheckCircle, Trash } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { TranslatedText } from '../utils/translate';
+import GlassCard from './ui/GlassCard';
 
 const JobCard = ({ job, isOwner, onComplete, onDelete }) => {
   const { t } = useLanguage();
@@ -14,7 +15,7 @@ const JobCard = ({ job, isOwner, onComplete, onDelete }) => {
   };
 
   return (
-    <div className="card card-hover p-4">
+    <GlassCard>
       <div className="flex justify-between items-center mb-2">
         <span className="text-xs font-semibold px-2.5 py-1 rounded-full border bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
           {getWorkType()}
@@ -85,7 +86,7 @@ const JobCard = ({ job, isOwner, onComplete, onDelete }) => {
           <Phone size={18} /> {t('jobs.callToApply') || 'Call to Apply'}
         </a>
       )}
-    </div>
+    </GlassCard>
   );
 };
 

@@ -54,7 +54,7 @@ self.addEventListener('fetch', (event) => {
           }
           return res;
         })
-        .catch(() => caches.match(request))
+        .catch(() => caches.match(request).then(res => res || Response.error()))
     );
     return;
   }
@@ -71,7 +71,7 @@ self.addEventListener('fetch', (event) => {
               caches.open(CACHE_NAME).then((c) => c.put(request, clone));
             }
             return res;
-          })
+          }).catch(() => Response.error())
       )
     );
     return;
@@ -89,7 +89,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(request).then((cached) => {
       if (!isSameOrigin) {
-        return cached || fetch(request);
+        return cached || fetch(request).catch(() => Response.error());
       }
 
       if (cached) {
@@ -111,7 +111,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((c) => c.put(request, clone));
         }
         return res;
-      });
+      }).catch(() => Response.error());
     })
   );
 });

@@ -16,7 +16,8 @@ router.get("/", async (req, res) => {
     }
 
     // 1. Geocoding
-    const geoUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${district},Karnataka,India&limit=1&appid=${apiKey}`;
+    const cleanDistrict = district.replace(/( Urban| Rural)$/i, '').trim();
+    const geoUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${cleanDistrict},Karnataka,India&limit=1&appid=${apiKey}`;
     const geoResponse = await axios.get(geoUrl);
     
     if (!geoResponse.data || geoResponse.data.length === 0) {

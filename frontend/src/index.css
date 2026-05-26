@@ -589,3 +589,31 @@ textarea {
   border-color: rgba(16, 185, 129, 0.35);
   transform: translateX(2px);
 }
+
+/* ============================================
+   SHIMMER KEYFRAME AND NIGHT MODE
+   ============================================ */
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.03) 0%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.03) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+.night-mode body {
+  background-color: #050708 !important;
+}
+.night-mode .night-text {
+  color: rgba(52, 211, 153, 0.8);   /* emerald-400/80 */
+}
+.night-mode .night-muted {
+  color: rgba(251, 191, 36, 0.6);   /* amber-400/60 */
+}
+.night-mode .glass-card {
+  background: rgba(5, 7, 8, 0.85);
+}

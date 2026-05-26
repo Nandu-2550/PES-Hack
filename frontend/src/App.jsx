@@ -17,6 +17,9 @@ import LanguageSwitcher from "./components/LanguageSwitcher";
 import VoiceBot from "./components/VoiceBot";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { LanguageProvider } from "./context/LanguageContext";
+import { ThemeProvider } from "./context/ThemeContext";
+
+import Profile from "./pages/Profile";
 
 const App = () => {
   useEffect(() => {
@@ -40,24 +43,46 @@ const App = () => {
   }, []);
 
   return (
-    <LanguageProvider>
-      <BrowserRouter
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true,
-        }}
-      >
-        <Toaster position="top-center" toastOptions={{
-          style: {
-            background: '#13191C',
-            color: '#e2e8f0',
-            border: '1px solid rgba(255,255,255,0.05)',
-          }
-        }}/>
-        <LanguageSwitcher />
-        <Routes>
-          {/* Public routes — no token required */}
-          <Route path="/" element={<Onboarding />} />
+    <ThemeProvider>
+      <LanguageProvider>
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
+          <Toaster
+            position="bottom-center"
+            gutter={10}
+            toastOptions={{
+              duration: 3500,
+              style: {
+                background: 'rgba(19, 25, 28, 0.85)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+                color: '#e2e8f0',
+                borderRadius: '14px',
+                fontSize: '13px',
+                padding: '10px 16px',
+                maxWidth: '340px',
+              },
+              success: {
+                iconTheme: { primary: '#10b981', secondary: '#022c22' },
+              },
+              error: {
+                iconTheme: { primary: '#f87171', secondary: '#1c0000' },
+              },
+            }}
+          />
+          <div className="flex items-center justify-end p-4 gap-4">
+
+            <LanguageSwitcher />
+          </div>
+          <Routes>
+            {/* Public routes — no token required */}
+            <Route path="/" element={<Onboarding />} />
 
           {/* Protected routes — require userToken in localStorage.
               ProtectedRoute reads localStorage directly on every render,
@@ -127,6 +152,15 @@ const App = () => {
             }
           />
 
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Catch-all — redirect unknown paths to root */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
@@ -134,6 +168,7 @@ const App = () => {
         <VoiceBot />
       </BrowserRouter>
     </LanguageProvider>
+    </ThemeProvider>
   );
 };
 

@@ -8,11 +8,14 @@ import { useLanguage } from '../context/LanguageContext';
 import SyncBadge from '../components/SyncBadge';
 import { useCachedFetch } from '../hooks/useCachedFetch';
 import { TranslatedText } from '../utils/translate';
+import GlassCard from '../components/ui/GlassCard';
+import { SkeletonListingGrid } from '../components/ui/SkeletonCard';
+import SwipeCard from '../components/ui/SwipeCard';
 
 export default function CropMarket() {
   const { user } = useContext(AuthContext);
   const { t } = useLanguage();
-  const { data: listingsRaw, setData: setListings, syncedAt, isStale } = useCachedFetch(
+  const { data: listingsRaw, setData: setListings, syncedAt, isStale, loading: browseLoading } = useCachedFetch(
     `crops_${user?.district}`,
     user ? `/api/crops` : null
   );
@@ -60,13 +63,17 @@ export default function CropMarket() {
 
   const fetchMyListings = async () => {
     setLoading(true);
+    const t0 = Date.now();
     try {
       const res = await client.get('/api/crops/mine');
-      setMyListings(res.data);
+      const wait = Math.max(0, 300 - (Date.now() - t0));
+      setTimeout(() => {
+        setMyListings(res.data);
+        setLoading(false);
+      }, wait);
     } catch (err) {
-      toast.error(t('error'));
-    } finally {
       setLoading(false);
+      toast.error('Connection slow — retrying…', { duration: 5000 });
     }
   };
 
@@ -161,10 +168,12 @@ export default function CropMarket() {
 
       {activeTab === 'browse' && (
         <div>
-          {activeBrowseListings.length > 0 ? (
+          {browseLoading ? (
+            <SkeletonListingGrid count={4} />
+          ) : activeBrowseListings.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {activeBrowseListings.map((item) => (
-                <div key={item._id} className="premium-card">
+                <GlassCard key={item._id}>
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h2 className="text-white text-xl font-bold">
@@ -211,7 +220,7 @@ export default function CropMarket() {
                       {t('call_seller')}
                     </a>
                   </div>
-                </div>
+                </GlassCard>
               ))}
             </div>
           ) : (
@@ -225,7 +234,8 @@ export default function CropMarket() {
       )}
 
       {activeTab === 'sell' && (
-        <form onSubmit={handleFormSubmit} className="premium-card space-y-4">
+        <GlassCard>
+          <form onSubmit={handleFormSubmit} className="space-y-4">
           <div>
             <label className="text-xs text-slate-400 font-bold block mb-1 uppercase tracking-wider">
               {t('crop_name')} *
@@ -309,17 +319,24 @@ export default function CropMarket() {
           >
             {submitting ? t('loading') : t('post_crop')}
           </button>
-        </form>
+          </form>
+        </GlassCard>
       )}
 
       {activeTab === 'mine' && (
         <div>
           {loading ? (
-            <p className="text-slate-400 text-center py-5 text-sm">{t('loading')}</p>
+            <SkeletonListingGrid count={4} />
           ) : myListings.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {myListings.map((item) => (
-                <div key={item._id} className="premium-card">
+                <SwipeCard
+                  key={item._id}
+                  item={item}
+                  onDelete={() => handleDeleteListing(item._id)}
+                  onEdit={() => toast.success('Edit not implemented yet')}
+                >
+                  <GlassCard>
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h2 className="text-white text-xl font-bold">
@@ -379,7 +396,8 @@ export default function CropMarket() {
                       </span>
                     </div>
                   )}
-                </div>
+                  </GlassCard>
+                </SwipeCard>
               ))}
             </div>
           ) : (

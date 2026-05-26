@@ -8,8 +8,15 @@ export default {
   theme: {
     extend: {
       // Extend with AgriHub-specific animation timings if needed
+      keyframes: {
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+      },
       animation: {
         'spin-slow': 'spin 3s linear infinite',
+        shimmer: 'shimmer 2s infinite linear',
       },
       boxShadow: {
         'glow-sm': '0 0 12px rgba(16,185,129,0.06)',

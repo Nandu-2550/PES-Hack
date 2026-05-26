@@ -6,6 +6,9 @@ import SyncBadge from '../components/SyncBadge';
 import { useCachedFetch } from '../hooks/useCachedFetch';
 import { useLanguage } from '../context/LanguageContext';
 import { TranslatedText } from '../utils/translate';
+import GlassCard from '../components/ui/GlassCard';
+import { SkeletonWeatherCard, SkeletonPriceGrid } from '../components/ui/SkeletonCard';
+import toast from 'react-hot-toast';
 
 const Weather = () => {
   const { user } = useContext(AuthContext);
@@ -23,13 +26,19 @@ const Weather = () => {
 
   useEffect(() => {
     const fetchMandi = async () => {
+      const t0 = Date.now();
       try {
         const res = await client.get('/api/weather/mandi');
-        setMandiPrices(res.data);
+        const wait = Math.max(0, 300 - (Date.now() - t0));
+        setTimeout(() => {
+          setMandiPrices(res.data);
+          setMandiLoading(false);
+          toast('Prices updated', { icon: '🌾', duration: 2500 });
+        }, wait);
       } catch (err) {
-        console.error('Error fetching Mandi prices:', err);
-      } finally {
         setMandiLoading(false);
+        toast.error('Connection slow — retrying…', { duration: 5000 });
+        console.error('Error fetching Mandi prices:', err);
       }
     };
     fetchMandi();
@@ -43,16 +52,11 @@ const Weather = () => {
       <SyncBadge syncedAt={syncedAt} isStale={isStale} />
 
       {loading ? (
-        <div className="flex justify-center items-center py-8">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-emerald-500"></div>
-          <p className="text-slate-400 text-sm ml-4">
-            <TranslatedText text="Loading weather..." />
-          </p>
-        </div>
+        <SkeletonWeatherCard />
       ) : weather ? (
         weather.current ? (
           <>
-            <div className="card p-6 mb-6 text-center flex flex-col items-center shadow-glow-sm relative overflow-hidden">
+            <GlassCard className="p-6 mb-6 text-center flex flex-col items-center shadow-glow-sm relative overflow-hidden">
               <h2 className="text-white text-2xl font-bold mb-1">
                 <TranslatedText text={weather.location} />
               </h2>
@@ -92,7 +96,7 @@ const Weather = () => {
                   </span>
                 </div>
               </div>
-            </div>
+            </GlassCard>
 
             <h3 className="text-white font-bold text-lg mb-3">
               <TranslatedText text="5-Day Forecast" />
@@ -102,7 +106,7 @@ const Weather = () => {
                 const date = new Date(day.date);
                 const dayName = date.toLocaleDateString(t('lang') === 'hi' ? 'hi-IN' : t('lang') === 'kn' ? 'kn-IN' : 'en-US', { weekday: 'short' });
                 return (
-                  <div key={idx} className="card flex flex-col items-center justify-center p-4 min-w-[90px] shadow-glow-sm">
+                  <GlassCard key={idx} className="flex flex-col items-center justify-center p-4 min-w-[90px] shadow-glow-sm">
                     <span className="text-white text-xs font-semibold">
                       {idx === 0 ? <TranslatedText text="Today" /> : dayName}
                     </span>
@@ -115,7 +119,7 @@ const Weather = () => {
                       <span className="text-emerald-400">{Math.round(day.max)}°</span>
                       <span className="text-slate-500">{Math.round(day.min)}°</span>
                     </div>
-                  </div>
+                  </GlassCard>
                 );
               })}
             </div>
@@ -135,15 +139,13 @@ const Weather = () => {
       <h3 className="text-white font-bold text-lg mb-3 mt-4">
         <TranslatedText text="Local Market Prices (Mandi)" />
       </h3>
-      <div className="card p-6 shadow-glow-md">
+      <GlassCard className="p-6 shadow-glow-md">
         <p className="text-slate-500 text-xs mb-4">
           📍 <TranslatedText text="Live commodity rates in Karnataka. Updated today." />
         </p>
         <div className="overflow-x-auto">
           {mandiLoading ? (
-            <div className="flex justify-center items-center py-6">
-              <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-emerald-500"></div>
-            </div>
+            <SkeletonPriceGrid count={3} />
           ) : mandiPrices.length > 0 ? (
             <table className="w-full text-left border-collapse">
               <thead>
@@ -202,7 +204,7 @@ const Weather = () => {
             </p>
           )}
         </div>
-      </div>
+      </GlassCard>
     </div>
   );
 };
