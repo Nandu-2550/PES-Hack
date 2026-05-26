@@ -6,13 +6,21 @@ import MachineryCard from '../components/MachineryCard';
 import SyncBadge from '../components/SyncBadge';
 import { useCachedFetch } from '../hooks/useCachedFetch';
 import { useLanguage } from '../context/LanguageContext';
+import ScopeSelector from '../components/ui/ScopeSelector';
 
 const Machinery = () => {
   const { user } = useContext(AuthContext);
   const { t } = useLanguage();
+  const [scope, setScope] = useState('district');
+  const district = user?.district || localStorage.getItem('userDistrict') || '';
+  const state = user?.state || localStorage.getItem('userState') || 'Karnataka';
+
+  const cacheKey = `equipment_${scope}_${district}_${state}`;
+  const queryParams = new URLSearchParams({ scope, district, state }).toString();
+
   const { data: equipmentListRaw, setData: setEquipmentList, syncedAt, isStale } = useCachedFetch(
-    `equipment_${user?.district}`,
-    user ? `/api/equipment` : null
+    cacheKey,
+    user ? `/api/equipment?${queryParams}` : null
   );
   const equipmentList = equipmentListRaw || [];
   const [myEquipment, setMyEquipment] = useState([]);
@@ -74,7 +82,7 @@ const Machinery = () => {
       toast.success("Availability updated");
       fetchMyEquipment();
       // Re-fetch global equipment silently
-      client.get('/api/equipment').then(res => setEquipmentList(res.data)).catch(()=>{});
+      client.get(`/api/equipment?${queryParams}`).then(res => setEquipmentList(res.data)).catch(()=>{});
     } catch (err) {
       toast.error(t('error'));
     }
@@ -122,6 +130,13 @@ const Machinery = () => {
 
       {view === 'browse' && (
         <>
+          <ScopeSelector activeScope={scope} onScopeChange={setScope} />
+          <p className="text-center text-white/40 text-xs mb-8">
+            {scope === 'district' && `Showing equipment in ${district}`}
+            {scope === 'state'    && `Showing equipment across ${state}`}
+            {scope === 'india'    && 'Showing all equipment across India'}
+          </p>
+
           <div className="flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-none">
             <button 
               className={`text-xs font-semibold px-4 py-2 rounded-full transition-all ${categoryFilter === '' ? "bg-emerald-500 text-black shadow-glow-sm" : "bg-[#13191C] text-slate-300 border border-white/5 hover:bg-[#1A2228] hover:text-white"}`}

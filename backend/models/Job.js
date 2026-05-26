@@ -1,8 +1,14 @@
 const mongoose = require("mongoose");
 
+const locationFields = {
+  district: { type: String, required: true, trim: true },
+  state:    { type: String, required: true, trim: true },
+  country:  { type: String, required: true, default: 'India', trim: true },
+};
+
 const JobSchema = new mongoose.Schema({
   postedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  district: { type: String, required: true, index: true },
+  ...locationFields,
   workType: {
     type: String,
     enum: ["Harvesting", "Weeding", "Planting", "Irrigation", "Spraying", "General"],

@@ -9,14 +9,22 @@ import { useCachedFetch } from '../hooks/useCachedFetch';
 import { useLanguage } from '../context/LanguageContext';
 import GlassCard from '../components/ui/GlassCard';
 import { SkeletonJobGrid } from '../components/ui/SkeletonCard';
+import ScopeSelector from '../components/ui/ScopeSelector';
 
 const JobBoard = () => {
   const { user } = useContext(AuthContext);
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
+  const [scope, setScope] = useState('district');
+  const district = user?.district || localStorage.getItem('userDistrict') || '';
+  const state = user?.state || localStorage.getItem('userState') || 'Karnataka';
+
+  const cacheKey = `jobs_${scope}_${district}_${state}`;
+  const queryParams = new URLSearchParams({ scope, district, state }).toString();
+
   const { data: jobsRaw, setData: setJobs, syncedAt, isStale, loading: feedLoading } = useCachedFetch(
-    `jobs_${user?.district}`,
-    user ? `/api/jobs` : null
+    cacheKey,
+    user ? `/api/jobs?${queryParams}` : null
   );
   const jobs = jobsRaw || [];
   const [myJobs, setMyJobs] = useState([]);
@@ -149,6 +157,13 @@ const JobBoard = () => {
 
       {view === 'feed' && (
         <>
+          <ScopeSelector activeScope={scope} onScopeChange={setScope} />
+          <p className="text-center text-white/40 text-xs mb-8">
+            {scope === 'district' && `Showing jobs in ${district}`}
+            {scope === 'state'    && `Showing jobs across ${state}`}
+            {scope === 'india'    && 'Showing all jobs across India'}
+          </p>
+
           <select 
             value={workFilter} 
             onChange={(e) => setWorkFilter(e.target.value)}

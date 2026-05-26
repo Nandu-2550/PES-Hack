@@ -10,6 +10,8 @@ router.post("/", auth, async (req, res) => {
     const newJob = new Job({
       postedBy: req.user.id,
       district: req.user.district,
+      state: req.user.state || 'Karnataka',
+      country: 'India',
       ...req.body
     });
 
@@ -29,10 +31,21 @@ router.post("/", auth, async (req, res) => {
 // @route   GET api/jobs
 router.get("/", auth, async (req, res) => {
   try {
-    const jobs = await Job.find({
-      district: req.user.district,
-      status: "active"
-    })
+    const { scope, district, state } = req.query;
+
+    let filter = { status: "active" };
+
+    if (scope === 'district' && district) {
+      filter.district = district;
+    } else if (scope === 'state' && state) {
+      filter.state = state;
+    } else if (scope === 'india') {
+      filter.country = 'India';
+    } else {
+      filter.district = req.user.district;
+    }
+
+    const jobs = await Job.find(filter)
       .sort({ createdAt: -1 })
       .populate("postedBy", "name phone district");
     res.json(jobs);

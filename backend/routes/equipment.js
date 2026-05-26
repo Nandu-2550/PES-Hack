@@ -9,6 +9,8 @@ router.post("/", auth, async (req, res) => {
     const newEquipment = new Equipment({
       owner: req.user.id,
       district: req.user.district,
+      state: req.user.state || 'Karnataka',
+      country: 'India',
       ...req.body
     });
 
@@ -24,10 +26,21 @@ router.post("/", auth, async (req, res) => {
 // @route   GET api/equipment
 router.get("/", auth, async (req, res) => {
   try {
-    const equipment = await Equipment.find({
-      district: req.user.district,
-      available: true
-    })
+    const { scope, district, state } = req.query;
+
+    let filter = { available: true };
+
+    if (scope === 'district' && district) {
+      filter.district = district;
+    } else if (scope === 'state' && state) {
+      filter.state = state;
+    } else if (scope === 'india') {
+      filter.country = 'India';
+    } else {
+      filter.district = req.user.district;
+    }
+
+    const equipment = await Equipment.find(filter)
       .sort({ createdAt: -1 })
       .populate("owner", "name");
     res.json(equipment);

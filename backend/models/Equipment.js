@@ -1,8 +1,14 @@
 const mongoose = require("mongoose");
 
+const locationFields = {
+  district: { type: String, required: true, trim: true },
+  state:    { type: String, required: true, trim: true },
+  country:  { type: String, required: true, default: 'India', trim: true },
+};
+
 const EquipmentSchema = new mongoose.Schema({
   owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  district: { type: String, required: true, index: true },
+  ...locationFields,
   category: {
     type: String,
     enum: ["Tractor", "JCB", "Harvester", "Tiller", "Sprayer", "Milling Machine", "Water Pump"],
