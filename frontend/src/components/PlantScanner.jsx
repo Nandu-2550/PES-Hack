@@ -82,7 +82,7 @@ const PART_DESC = {
 /** Full-screen section wrapper */
 function Screen({ children, className = '' }) {
   return (
-    <div className={`min-h-screen w-full bg-[#0B0F12] flex flex-col ${className}`}>
+    <div className={`min-h-screen w-full bg-transparent flex flex-col ${className}`}>
       {children}
     </div>
   );
@@ -95,7 +95,8 @@ function TopBar({ title, onBack }) {
       {onBack && (
         <button
           onClick={onBack}
-          className="p-2 rounded-lg bg-[#13191C] border border-white/5 text-slate-400 hover:text-white hover:bg-[#1A2228] transition-colors"
+          className="p-2 rounded-lg border border-white/10 text-slate-400 hover:text-white transition-colors"
+          style={{ background: 'rgba(0,0,0,0.32)' }}
           aria-label="Go back"
         >
           <RotateCcw size={18} />
@@ -190,12 +191,13 @@ function CropSelectScreen({ onSelect, onBack }) {
               onClick={() => onSelect(crop)}
               className="
                 flex flex-col items-center justify-center gap-1.5
-                bg-[#13191C]/80 border border-white/5 rounded-xl
+                border border-white/10 rounded-xl
                 px-2 py-4 text-center
-                hover:bg-[#1A2228] hover:border-emerald-500/20
+                hover:border-emerald-500/30 hover:shadow-glow-sm
                 active:scale-95
-                transition-all duration-150
+                transition-all duration-300
               "
+              style={{ background: 'rgba(26,36,33,0.42)', backdropFilter: 'blur(20px)' }}
             >
               <span className="text-2xl leading-none" role="img" aria-hidden="true">
                 {CROP_EMOJI[crop] || '🌿'}
@@ -220,7 +222,7 @@ function PartSelectScreen({ cropName, onSelect, onBack }) {
       <TopBar title={`${cropName} — Select Plant Part`} onBack={onBack} />
 
       {/* Full-bleed animated background */}
-      <div className="relative overflow-hidden bg-[#0B0F12]">
+      <div className="relative overflow-hidden bg-transparent">
         <PlantScanAnimation />
         <p className="text-center text-slate-500 text-xs pb-2">
           Scan in progress…
@@ -241,13 +243,14 @@ function PartSelectScreen({ cropName, onSelect, onBack }) {
                 onClick={() => onSelect(part)}
                 className="
                   flex flex-col items-center justify-center gap-2
-                  bg-[#13191C]/80 border border-white/5 rounded-2xl
+                  border border-white/10 rounded-2xl
                   py-6 px-3 text-center
-                  hover:bg-[#1A2228] hover:border-emerald-500/20
+                  hover:border-emerald-500/30 hover:shadow-glow-sm
                   active:scale-95
-                  transition-all duration-150
+                  transition-all duration-300
                   group
                 "
+                style={{ background: 'rgba(26,36,33,0.42)', backdropFilter: 'blur(20px)' }}
               >
                 <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-600/40 flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
                   <Icon size={24} className="text-emerald-400" />
@@ -276,7 +279,7 @@ function CaptureScreen({ cropName, partName, onImageSelected, onBack }) {
 
       {/* Context label */}
       <div className="px-4 pt-5 pb-2">
-        <div className="bg-[#13191C]/80 border border-white/5 rounded-xl px-4 py-3 flex items-start gap-3">
+        <div className="border border-white/10 rounded-xl px-4 py-3 flex items-start gap-3" style={{ background: 'rgba(26,36,33,0.42)', backdropFilter: 'blur(20px)' }}>
           <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-600/40 flex items-center justify-center flex-shrink-0 mt-0.5">
             <ScanLine size={16} className="text-emerald-400" />
           </div>
@@ -318,7 +321,7 @@ function CaptureScreen({ cropName, partName, onImageSelected, onBack }) {
           }
         `}</style>
 
-        <div className="bg-[#13191C] border border-white/5 rounded-2xl p-5 space-y-3 shadow-glow-sm">
+        <div className="border border-white/10 rounded-2xl p-5 space-y-3 shadow-glow-sm" style={{ background: 'rgba(26,36,33,0.42)', backdropFilter: 'blur(20px)' }}>
           <p className="text-slate-300 text-sm text-center font-medium mb-1">
             How would you like to add the image?
           </p>
@@ -348,13 +351,13 @@ function CaptureScreen({ cropName, partName, onImageSelected, onBack }) {
             onClick={() => fileRef.current.click()}
             className="
               w-full flex items-center justify-between gap-3
-              bg-[#1A2228] hover:bg-[#222D35]
-              border border-white/5 hover:border-emerald-500/20
+              border border-white/10 hover:border-emerald-500/30 hover:shadow-glow-sm
               text-white font-semibold
               rounded-xl px-5 py-4
-              transition-all duration-150
+              transition-all duration-300
               active:scale-95
             "
+            style={{ background: 'rgba(0,0,0,0.32)' }}
           >
             <div className="flex items-center gap-3">
               <Upload size={22} className="text-emerald-400" />
@@ -380,7 +383,7 @@ function AnalyzingScreen({ cropName, partName }) {
         <div
           className="absolute inset-0 rounded-full border-4 border-transparent border-t-emerald-400 animate-spin"
         />
-        <div className="absolute inset-3 rounded-full bg-[#13191C] flex items-center justify-center">
+        <div className="absolute inset-3 rounded-full flex items-center justify-center" style={{ background: 'rgba(26,36,33,0.6)' }}>
           <Leaf size={24} className="text-emerald-400" />
         </div>
       </div>
@@ -601,90 +604,117 @@ function LowConfidenceScreen({ result, onRetake, onReset }) {
 // ---------------------------------------------------------------------------
 function IdleScreen({ modelReady, modelError, errorToast, onDismissToast, onStart }) {
   return (
-    <Screen className="px-4 pt-10">
-      {/* Model unavailability inline toast */}
-      {errorToast && (
-        <div className="mb-4 bg-yellow-500/5 border border-yellow-500/15 rounded-xl px-4 py-3 flex items-start gap-3">
-          <AlertTriangle size={18} className="text-yellow-400 flex-shrink-0 mt-0.5" />
-          <p className="text-yellow-400 text-sm flex-1">
-            AI model unavailable — connect once to download it.
-          </p>
-          <button
-            onClick={onDismissToast}
-            className="text-yellow-400 hover:text-yellow-300 transition-colors"
-            aria-label="Dismiss"
+    <Screen className="px-4 py-8 flex flex-col items-center justify-center">
+      <div
+        className="w-full max-w-sm flex flex-col items-center justify-between px-5 py-8 relative"
+        style={{
+          background: 'rgba(255, 255, 255, 0.08)',
+          backdropFilter: 'blur(28px)',
+          WebkitBackdropFilter: 'blur(28px)',
+          border: '1px solid rgba(255, 255, 255, 0.25)',
+          borderRadius: '32px',
+          boxShadow: '0 24px 80px rgba(0,0,0,0.5)',
+          minHeight: '540px',
+        }}
+      >
+        {/* Model unavailability inline toast */}
+        {errorToast && (
+          <div className="absolute top-4 left-4 right-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl px-4 py-3 flex items-start gap-3 z-10">
+            <AlertTriangle size={18} className="text-yellow-400 flex-shrink-0 mt-0.5" />
+            <p className="text-yellow-400 text-sm flex-1">
+              AI model unavailable — connect once to download it.
+            </p>
+            <button
+              onClick={onDismissToast}
+              className="text-yellow-400 hover:text-yellow-300 transition-colors"
+              aria-label="Dismiss"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        )}
+
+        <div className="flex flex-col items-center text-center w-full mt-4">
+          {/* Decorative concentric rings */}
+          <div className="relative w-36 h-36 mb-6">
+            <div className="absolute inset-0 rounded-full border border-emerald-400/40 opacity-80" style={{ animation: 'agri-pulse 3s ease-in-out infinite' }} />
+            <div className="absolute inset-4 rounded-full border border-emerald-400/50 opacity-90" style={{ animation: 'agri-pulse 2.4s ease-in-out infinite 0.5s' }} />
+            <div className="absolute inset-8 rounded-full bg-emerald-500/15 border-2 border-emerald-400/60 flex items-center justify-center">
+              <Leaf size={40} className="text-emerald-300" style={{ filter: 'drop-shadow(0 0 10px rgba(52,211,153,0.8))' }} />
+            </div>
+            <style>{`
+              @keyframes agri-pulse {
+                0%   { transform: scale(0.92); opacity: 0.35; }
+                50%  { transform: scale(1.06); opacity: 0.80; }
+                100% { transform: scale(0.92); opacity: 0.35; }
+              }
+            `}</style>
+          </div>
+
+          <h1 
+            className="text-white text-[32px] font-extrabold mb-3 tracking-tight leading-none"
+            style={{ textShadow: '0 2px 10px rgba(0,0,0,0.3), 0 0 30px rgba(255,255,255,0.4), 0 0 50px rgba(52,211,153,0.6)' }}
           >
-            <X size={16} />
+            AI Crop Scanner
+          </h1>
+          <p className="text-white text-sm leading-relaxed max-w-[280px]" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+            Identify plant diseases instantly — even offline — using on-device AI trained on
+            Karnataka's most common crops.
+          </p>
+        </div>
+
+        {/* Feature pills */}
+        <div className="flex flex-wrap justify-center gap-2 mt-8 mb-auto">
+          {['15 crops', '4 plant parts', '100% offline', 'Instant results'].map((f) => (
+            <span
+              key={f}
+              className="text-xs text-emerald-300 border border-white/20 rounded-full px-4 py-1.5 font-medium tracking-wide"
+              style={{ background: 'rgba(255, 255, 255, 0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}
+            >
+              {f}
+            </span>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <div className="w-full mt-8">
+          <button
+            onClick={onStart}
+            disabled={!modelReady}
+            title={!modelReady ? 'AI model loading…' : 'Start diagnosis'}
+            className="
+              btn-primary w-full py-4 text-[17px] font-bold
+              flex items-center justify-center gap-2
+              disabled:opacity-50 disabled:cursor-not-allowed
+            "
+            style={{
+              background: 'linear-gradient(135deg, #34D399, #10B981)',
+              boxShadow: '0 10px 30px rgba(16,185,129,0.4), inset 0 2px 0 rgba(255,255,255,0.2)',
+              borderRadius: '16px',
+              border: 'none',
+              color: '#022C22'
+            }}
+          >
+            {modelReady ? (
+              <>
+                <ScanLine size={22} />
+                Diagnose Now
+              </>
+            ) : (
+              <>
+                <div className="w-5 h-5 border-2 border-[#022C22] border-t-emerald-100 rounded-full animate-spin" />
+                Loading AI…
+              </>
+            )}
           </button>
         </div>
-      )}
 
-      {/* Hero area */}
-      <div className="flex flex-col items-center text-center pt-6 pb-8">
-        <div className="relative w-36 h-36 mb-6">
-          {/* Decorative concentric rings */}
-          <div className="absolute inset-0 rounded-full border-2 border-emerald-900/60 opacity-60" style={{ animation: 'agri-pulse 3s ease-in-out infinite' }} />
-          <div className="absolute inset-4 rounded-full border-2 border-emerald-800/60 opacity-70" style={{ animation: 'agri-pulse 2.4s ease-in-out infinite 0.5s' }} />
-          <div className="absolute inset-8 rounded-full bg-emerald-500/10 border-2 border-emerald-600 flex items-center justify-center">
-            <Leaf size={40} className="text-emerald-400" />
-          </div>
-          <style>{`
-            @keyframes agri-pulse {
-              0%   { transform: scale(0.92); opacity: 0.25; }
-              50%  { transform: scale(1.06); opacity: 0.70; }
-              100% { transform: scale(0.92); opacity: 0.25; }
-            }
-          `}</style>
-        </div>
-
-        <h1 className="text-white text-3xl font-bold mb-2">AI Crop Scanner</h1>
-        <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
-          Identify plant diseases instantly — even offline — using on-device AI trained on
-          Karnataka's most common crops.
-        </p>
-      </div>
-
-      {/* Feature pills */}
-      <div className="flex flex-wrap justify-center gap-2 mb-8">
-        {['15 crops', '4 plant parts', '100% offline', 'Instant results'].map((f) => (
-          <span
-            key={f}
-            className="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1"
-          >
-            {f}
-          </span>
-        ))}
-      </div>
-
-      {/* CTA */}
-      <button
-        onClick={onStart}
-        disabled={!modelReady}
-        title={!modelReady ? 'AI model loading…' : 'Start diagnosis'}
-        className="
-          btn-primary w-full py-4 text-lg font-bold
-          flex items-center justify-center gap-2
-          disabled:opacity-50 disabled:cursor-not-allowed
-        "
-      >
-        {modelReady ? (
-          <>
-            <ScanLine size={22} />
-            Diagnose Now
-          </>
-        ) : (
-          <>
-            <div className="w-5 h-5 border-2 border-[#0B0F12] border-t-emerald-400 rounded-full animate-spin" />
-            Loading AI…
-          </>
+        {modelError && !errorToast && (
+          <p className="text-red-400/90 text-xs text-center absolute bottom-2 w-full font-medium" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+            {modelError}
+          </p>
         )}
-      </button>
-
-      {modelError && !errorToast && (
-        <p className="text-red-400/80 text-xs text-center mt-3">
-          {modelError}
-        </p>
-      )}
+      </div>
     </Screen>
   );
 }
@@ -692,10 +722,10 @@ function IdleScreen({ modelReady, modelError, errorToast, onDismissToast, onStar
 // ---------------------------------------------------------------------------
 // Main PlantScanner component
 // ---------------------------------------------------------------------------
-export default function PlantScanner() {
-  const [viewState, setViewState] = useState('idle');
-  const [selectedCrop, setSelectedCrop] = useState(null);
-  const [selectedPart, setSelectedPart] = useState(null);
+export default function PlantScanner({ initialViewState = 'idle', initialCrop = null, initialPart = null }) {
+  const [viewState, setViewState] = useState(initialViewState);
+  const [selectedCrop, setSelectedCrop] = useState(initialCrop);
+  const [selectedPart, setSelectedPart] = useState(initialPart);
   const [diagnosisResult, setDiagnosisResult] = useState(null);
   const [runMode, setRunMode] = useState(null);
 

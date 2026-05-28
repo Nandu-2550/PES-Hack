@@ -1,9 +1,11 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Leaf, MapPin, Lock, Mail, Phone, User } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AuthContext } from '../context/AuthContext';
 import OTPModal from '../components/OTPModal';
+import ProgressButton from '../components/ui/ProgressButton';
 
 const statesData = {
   "Andhra Pradesh": ["Anantapur", "Chittoor", "East Godavari", "Guntur"],
@@ -47,39 +49,23 @@ const statesList = Object.keys(statesData);
 
 /**
  * Persist session data to localStorage immediately after successful auth.
- *
- * Writes two keys consumed by ProtectedRoute:
- *  - `userToken`   — JWT bearer token (or any opaque session token)
- *  - `userProfile` — lightweight user object (name, state, district)
- *
- * Also mirrors to the AuthContext keys (agrishield_token / agrishield_user)
- * so the existing context-based components continue to work.
- *
- * Throws a descriptive Error on storage quota failure so the caller can
- * surface it gracefully.
+ * Writes two keys consumed by ProtectedRoute: `userToken` and `userProfile`.
+ * Also mirrors to AuthContext keys (agrishield_token / agrishield_user).
  */
 const persistSession = (token, user) => {
   try {
-    // Keys required by ProtectedRoute (offline route guard)
     localStorage.setItem('userToken', token);
     localStorage.setItem('userProfile', JSON.stringify({
-      name: user.name,
-      state: user.state,
-      district: user.district,
+      name: user.name, state: user.state, district: user.district,
     }));
-
-    // Mirror to existing AuthContext keys — keeps context-based reads consistent
     localStorage.setItem('agrishield_token', token);
     localStorage.setItem('agrishield_user', JSON.stringify(user));
   } catch (storageErr) {
-    // Likely a QuotaExceededError — translate to user-friendly message
     const isQuota =
       storageErr instanceof DOMException &&
-      (storageErr.code === 22 ||
-        storageErr.code === 1014 ||
+      (storageErr.code === 22 || storageErr.code === 1014 ||
         storageErr.name === 'QuotaExceededError' ||
         storageErr.name === 'NS_ERROR_DOM_QUOTA_REACHED');
-
     throw new Error(
       isQuota
         ? 'Your device storage is full. Please free up space and try again.'
@@ -88,11 +74,46 @@ const persistSession = (token, user) => {
   }
 };
 
+const formVariants = {
+  hidden: { opacity: 0, x: 18 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.30, ease: 'easeOut' } },
+  exit: { opacity: 0, x: -18, transition: { duration: 0.18 } },
+};
+
+const inputStyle = {
+  background: 'rgba(0,0,0,0.32)',
+  border: '1px solid rgba(255,255,255,0.10)',
+  borderRadius: 12,
+  color: '#fff',
+  padding: '11px 16px',
+  width: '100%',
+  outline: 'none',
+  fontSize: 14,
+  marginBottom: 0,
+  transition: 'border-color 0.2s, box-shadow 0.2s',
+  fontFamily: 'inherit',
+};
+
+const InputField = ({ icon: Icon, style: extraStyle = {}, ...props }) => (
+  <div className="relative">
+    {Icon && (
+      <Icon size={15} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' }} />
+    )}
+    <input
+      {...props}
+      style={{ ...inputStyle, paddingLeft: Icon ? 40 : 16, ...extraStyle }}
+      onFocus={e => { e.target.style.borderColor = 'rgba(52,211,153,0.55)'; e.target.style.boxShadow = '0 0 0 3px rgba(52,211,153,0.10)'; }}
+      onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.10)'; e.target.style.boxShadow = 'none'; }}
+    />
+  </div>
+);
+
 const Onboarding = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showOTP, setShowOTP] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
   const [fieldError, setFieldError] = useState({ email: '', phone: '' });
   const [formData, setFormData] = useState({
     name: '',
@@ -111,7 +132,6 @@ const Onboarding = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    // Reset district if state changes
     if (e.target.name === 'state') {
       setFormData(prev => ({ ...prev, district: statesData[e.target.value][0] }));
     }
@@ -119,23 +139,19 @@ const Onboarding = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
+    setSubmitting(true); setSubmitSuccess(false);
     setFieldError({ email: '', phone: '' });
     try {
       if (isLogin) {
         const payload = formData.identifier.includes('@')
           ? { email: formData.identifier, password: formData.password }
           : { phone: formData.identifier, password: formData.password };
-
         const response = await login(payload);
-
-        // Persist session to localStorage before navigating.
-        // Both writes must succeed; any storage error is surfaced to the user.
         persistSession(response.data.token, response.data.user);
-
+        setSubmitSuccess(true);
         toast.success("Welcome back!");
         setSubmitting(false);
-        navigate('/dashboard');
+        setTimeout(() => navigate('/dashboard'), 600);
       } else {
         const response = await register({
           name: formData.name,
@@ -145,28 +161,20 @@ const Onboarding = () => {
           state: formData.state,
           district: formData.district
         });
-
-        // Persist immediately on registration as well, before OTP modal
         persistSession(response.data.token, response.data.user);
-
+        setSubmitSuccess(true);
         toast.success("Registration successful! Verify OTP.");
         setSubmitting(false);
-        setShowOTP(true);
+        setTimeout(() => setShowOTP(true), 400);
       }
     } catch (err) {
-      setSubmitting(false);
-      // Surface storage quota errors and auth errors the same way
+      setSubmitting(false); setSubmitSuccess(false);
       const message =
         err.message && !err.response
-          ? err.message // Our own persistSession error
+          ? err.message
           : (err.response?.data?.msg || err.response?.data?.errors?.[0]?.msg || "Invalid details. Please try again.");
-
-      if (message.toLowerCase().includes('email')) {
-        setFieldError(prev => ({ ...prev, email: message }));
-      } else if (message.toLowerCase().includes('phone')) {
-        setFieldError(prev => ({ ...prev, phone: message }));
-      }
-
+      if (message.toLowerCase().includes('email')) setFieldError(prev => ({ ...prev, email: message }));
+      else if (message.toLowerCase().includes('phone')) setFieldError(prev => ({ ...prev, phone: message }));
       toast.error(message);
     }
   };
@@ -177,104 +185,165 @@ const Onboarding = () => {
     navigate('/dashboard');
   };
 
+  const selectStyle = {
+    ...inputStyle,
+    background: 'rgba(0,0,0,0.45)',
+    cursor: 'pointer',
+  };
+
   return (
-    <div className="page-container flex flex-col items-center justify-center min-h-screen bg-[#0B0F12] text-slate-200 px-4 py-8">
-      
-      <div className="flex flex-col items-center mb-8">
-        <img src="/logo.png" alt="AgriShield Logo" className="w-24 h-auto drop-shadow-glow mb-2" />
-        <h1 className="text-white text-3xl font-extrabold tracking-tight">AgriShield</h1>
-      </div>
+    <div className="relative min-h-screen flex flex-col items-center justify-center px-4 py-8 overflow-hidden">
 
-      <div className="card w-full max-w-md p-8 shadow-glow-lg border border-white/5 relative z-10">
-        <h2 className="text-white text-2xl font-bold mb-6 text-center">{isLogin ? 'Welcome Back' : 'Create Account'}</h2>
+      {/* Ambient orbs — purely decorative z-0 */}
+      <div className="nfv-orb nfv-orb-emerald nfv-orb-animate-1" style={{ width: 450, height: 450, top: '-12%', left: '-18%', zIndex: 0, opacity: 0.22 }} aria-hidden="true" />
+      <div className="nfv-orb nfv-orb-teal nfv-orb-animate-2" style={{ width: 340, height: 340, bottom: '4%', right: '-12%', zIndex: 0, opacity: 0.18 }} aria-hidden="true" />
 
-        <form onSubmit={handleSubmit}>
-          {!isLogin && (
-            <input
-              type="text" name="name" placeholder="Full Name" required
-              value={formData.name} onChange={handleChange}
-              className="input-field mb-4"
-            />
-          )}
+      {/* Logo + wordmark */}
+      <motion.div
+        initial={{ opacity: 0, y: -22 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="flex flex-col items-center mb-8 z-10"
+      >
+        <div style={{
+          width: 68, height: 68, borderRadius: 20,
+          background: 'rgba(52,211,153,0.15)',
+          border: '1px solid rgba(52,211,153,0.28)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          marginBottom: 14,
+          boxShadow: '0 0 28px rgba(52,211,153,0.22)',
+        }}>
+          <Leaf size={32} color="#34D399" />
+        </div>
+        <h1 className="text-white text-4xl font-extrabold tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', Inter, sans-serif" }}>
+          AgriShield
+        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#34D399', animation: 'pulse 2s infinite' }} />
+          <span style={{ color: 'rgba(52,211,153,0.70)', fontSize: 11, fontWeight: 500, letterSpacing: '0.05em' }}>
+            Karnataka · Hassan · Mandya · Mysore
+          </span>
+        </div>
+      </motion.div>
 
-          {isLogin ? (
-            <input
-              type="text" name="identifier" placeholder="Email or Phone Number" required
-              value={formData.identifier} onChange={handleChange}
-              className="input-field mb-4"
-            />
-          ) : (
-            <>
-              <input
-                type="email" name="email" placeholder="Email Address (Optional)"
-                value={formData.email} onChange={handleChange}
-                className={`input-field ${fieldError.email ? 'border-red-500 border mb-1' : 'mb-4'}`}
-              />
-              {fieldError.email && <p className="text-red-500 text-sm mb-4 pl-1">{fieldError.email}</p>}
-              <input
-                type="tel" name="phone" placeholder="Phone Number" required
-                pattern="[0-9]{10}" title="10 digit phone number"
-                value={formData.phone} onChange={handleChange}
-                className={`input-field ${fieldError.phone ? 'border-red-500 border mb-1' : 'mb-4'}`}
-              />
-              {fieldError.phone && <p className="text-red-500 text-sm mb-4 pl-1">{fieldError.phone}</p>}
-            </>
-          )}
-
-          <div className="relative mb-4">
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password" placeholder="Password" required minLength="6"
-              value={formData.password} onChange={handleChange}
-              className="input-field pr-12"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-3.5 text-slate-400 hover:text-white transition-colors"
-            >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
-          </div>
-
-          {!isLogin && (
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <select 
-                name="state" 
-                value={formData.state} 
-                onChange={handleChange} 
-                required
-                className="input-field"
-              >
-                {statesList.map(s => <option key={s} value={s} className="bg-[#13191C]">{s}</option>)}
-              </select>
-              <select 
-                name="district" 
-                value={formData.district} 
-                onChange={handleChange} 
-                required
-                className="input-field"
-              >
-                {currentDistricts.map(d => <option key={d} value={d} className="bg-[#13191C]">{d}</option>)}
-              </select>
-            </div>
-          )}
-
-          <button type="submit" disabled={submitting} className="btn-primary w-full py-3.5 font-bold mb-4 mt-2 disabled:opacity-50 disabled:cursor-not-allowed">
-            {submitting ? 'Please wait...' : (isLogin ? 'Login' : 'Register')}
+      {/* Glass form card */}
+      <motion.div
+        initial={{ opacity: 0, y: 28 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+        className="w-full max-w-md z-10"
+        style={{
+          background: 'rgba(26,36,33,0.52)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          border: '1px solid rgba(255,255,255,0.10)',
+          borderRadius: 24,
+          padding: 28,
+          boxShadow: '0 24px 80px rgba(0,0,0,0.45)',
+        }}
+      >
+        {/* Tab dock */}
+        <div className="tab-dock mb-6">
+          <button type="button" className={`tab-pill ${isLogin ? 'active' : ''}`}
+            onClick={() => { setIsLogin(true); setFormData(p => ({ ...p, password: '' })); setSubmitSuccess(false); }}>
+            Sign In
           </button>
-        </form>
+          <button type="button" className={`tab-pill ${!isLogin ? 'active' : ''}`}
+            onClick={() => { setIsLogin(false); setFormData(p => ({ ...p, password: '' })); setSubmitSuccess(false); }}>
+            Register
+          </button>
+        </div>
 
-        <p className="text-slate-400 text-sm text-center">
-          {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <span
-            className="text-emerald-400 hover:text-emerald-300 cursor-pointer font-bold transition-colors ml-1"
-            onClick={() => { setIsLogin(!isLogin); setFormData({ ...formData, password: '' }); }}
+        <AnimatePresence mode="wait">
+          <motion.form
+            key={isLogin ? 'login' : 'register'}
+            variants={formVariants} initial="hidden" animate="visible" exit="exit"
+            onSubmit={handleSubmit}
+            style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
           >
-            {isLogin ? 'Register' : 'Login'}
+            {/* Full Name (register only) */}
+            {!isLogin && (
+              <InputField type="text" name="name" placeholder="Full Name" required
+                icon={User} value={formData.name} onChange={handleChange} />
+            )}
+
+            {/* Identifier (login) or email + phone (register) */}
+            {isLogin ? (
+              <InputField type="text" name="identifier" placeholder="Email or Phone Number" required
+                icon={Mail} value={formData.identifier} onChange={handleChange} />
+            ) : (
+              <>
+                <InputField type="email" name="email" placeholder="Email Address (Optional)"
+                  icon={Mail} value={formData.email} onChange={handleChange}
+                  style={{ borderColor: fieldError.email ? 'rgba(239,68,68,0.55)' : undefined }} />
+                {fieldError.email && <p style={{ color: '#F87171', fontSize: 11, marginTop: -8, paddingLeft: 4 }}>{fieldError.email}</p>}
+
+                <InputField type="tel" name="phone" placeholder="Phone Number" required
+                  pattern="[0-9]{10}" title="10 digit phone number"
+                  icon={Phone} value={formData.phone} onChange={handleChange}
+                  style={{ borderColor: fieldError.phone ? 'rgba(239,68,68,0.55)' : undefined }} />
+                {fieldError.phone && <p style={{ color: '#F87171', fontSize: 11, marginTop: -8, paddingLeft: 4 }}>{fieldError.phone}</p>}
+              </>
+            )}
+
+            {/* Password */}
+            <div className="relative">
+              <Lock size={15} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' }} />
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password" placeholder="Password" required minLength="6"
+                value={formData.password} onChange={handleChange}
+                style={{ ...inputStyle, paddingLeft: 40, paddingRight: 44 }}
+                onFocus={e => { e.target.style.borderColor = 'rgba(52,211,153,0.55)'; e.target.style.boxShadow = '0 0 0 3px rgba(52,211,153,0.10)'; }}
+                onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.10)'; e.target.style.boxShadow = 'none'; }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'rgba(255,255,255,0.40)', cursor: 'pointer', padding: 0 }}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+
+            {/* State + District (register only) */}
+            {!isLogin && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div>
+                  <label className="nfv-label">State</label>
+                  <select name="state" value={formData.state} onChange={handleChange} required style={selectStyle}>
+                    {statesList.map(s => <option key={s} value={s} style={{ background: '#0d1a14' }}>{s}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="nfv-label">District</label>
+                  <select name="district" value={formData.district} onChange={handleChange} required style={selectStyle}>
+                    {currentDistricts.map(d => <option key={d} value={d} style={{ background: '#0d1a14' }}>{d}</option>)}
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* ProgressButton submit */}
+            <ProgressButton isLoading={submitting} isSuccess={submitSuccess} className="w-full py-3.5 text-base mt-1">
+              {isLogin ? 'Sign In' : 'Create Account'}
+            </ProgressButton>
+          </motion.form>
+        </AnimatePresence>
+
+        {/* Toggle link */}
+        <p style={{ color: 'rgba(255,255,255,0.42)', fontSize: 13, textAlign: 'center', marginTop: 20 }}>
+          {isLogin ? "Don't have an account?" : "Already have an account?"}
+          <span
+            style={{ color: '#34D399', fontWeight: 600, cursor: 'pointer', marginLeft: 6, transition: 'color 0.2s' }}
+            onClick={() => { setIsLogin(!isLogin); setFormData(p => ({ ...p, password: '' })); setSubmitSuccess(false); }}
+            onMouseEnter={e => e.target.style.color = '#6ee7b7'}
+            onMouseLeave={e => e.target.style.color = '#34D399'}
+          >
+            {isLogin ? 'Register' : 'Sign In'}
           </span>
         </p>
-      </div>
+      </motion.div>
 
       <OTPModal isOpen={showOTP} phone={formData.phone} onVerify={handleVerifyOTP} />
     </div>
@@ -282,3 +351,4 @@ const Onboarding = () => {
 };
 
 export default Onboarding;
+

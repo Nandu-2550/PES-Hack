@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 
 const SCOPES = [
   { key: 'district', label: 'Local District', icon: '📍' },
@@ -7,6 +8,8 @@ const SCOPES = [
 ];
 
 const ScopeSelector = ({ activeScope, onScopeChange }) => {
+  const { t } = useLanguage();
+
   return (
     <div className="flex items-center justify-center mb-6">
       <div className="inline-flex bg-white/5 backdrop-blur-md border border-white/10 rounded-full p-1 shadow-xl gap-1">
@@ -24,7 +27,7 @@ const ScopeSelector = ({ activeScope, onScopeChange }) => {
             `}
           >
             <span>{icon}</span>
-            <span>{label}</span>
+            <span>{t(`scope_${key}`) || label}</span>
           </button>
         ))}
       </div>

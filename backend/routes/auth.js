@@ -5,7 +5,6 @@ const jwt = require("jsonwebtoken");
 const { body, validationResult } = require("express-validator");
 const User = require("../models/User");
 const auth = require("../middleware/auth");
-const { validate } = require("deep-email-validator");
 const { isValidPhoneNumber } = require("libphonenumber-js");
 
 // @route   POST api/auth/register
@@ -25,19 +24,6 @@ router.post(
     const { name, phone, email, password, state, district } = req.body;
 
     try {
-      if (email) {
-        const emailCheck = await validate({
-          email: email,
-          validateSMTP: true,
-        });
-
-        if (!emailCheck.valid) {
-          return res.status(400).json({
-            msg: 'The email address specified does not exist. Please enter a valid, active email.',
-          });
-        }
-      }
-
       const isPhoneValid = isValidPhoneNumber(phone, 'IN');
       if (!isPhoneValid) {
         return res.status(400).json({

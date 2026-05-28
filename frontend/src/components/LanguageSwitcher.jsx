@@ -36,8 +36,8 @@ export default function LanguageSwitcher() {
       <button
         onClick={() => setOpen(!open)}
         style={{
-          background: 'rgba(19, 25, 28, 0.85)',
-          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'rgba(26, 36, 33, 0.42)',
+          border: '1px solid rgba(255,255,255,0.09)',
           borderRadius: '20px',
           padding: '6px 14px',
           color: '#fff',
@@ -48,8 +48,8 @@ export default function LanguageSwitcher() {
           fontSize: '13px',
           fontWeight: '600',
           boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
           transition: 'all 0.2s',
         }}
       >
@@ -64,15 +64,15 @@ export default function LanguageSwitcher() {
           position: 'absolute',
           top: '110%',
           right: 0,
-          background: '#13191C',
+          background: 'rgba(26, 36, 33, 0.42)',
           border: '1px solid rgba(16, 185, 129, 0.2)',
           borderRadius: '12px',
           overflow: 'hidden',
           zIndex: 9999,
           minWidth: '140px',
           boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
         }}>
           {LANGUAGES.map((langItem) => (
             <button
