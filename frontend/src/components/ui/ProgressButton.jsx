@@ -6,14 +6,14 @@ export default function ProgressButton({ isLoading, isSuccess, onClick, children
       onClick={!isLoading && !isSuccess ? onClick : undefined}
       disabled={isLoading}
       animate={{
-        backgroundColor: isSuccess ? '#059669' : '#166534', // emerald-600 on success
+        backgroundColor: isSuccess ? '#10B981' : '#34D399', // Radium Green
       }}
       transition={{ duration: 0.3 }}
-      className={`relative flex items-center justify-center px-5 py-2.5 rounded-xl text-white font-medium
-        bg-emerald-900 border border-white/10 shadow-lg shadow-black/30
+      className={`relative flex items-center justify-center px-5 py-2.5 rounded-xl text-[#0B0F12] font-bold
+        border border-white/10 shadow-[0_4px_16px_rgba(52,211,153,0.25)] hover:shadow-[0_0_20px_rgba(52,211,153,0.45)]
         disabled:opacity-70 disabled:cursor-not-allowed
         transition-all duration-200 min-w-[120px] ${className}`}
-      whileHover={!isLoading && !isSuccess ? { scale: 1.02, y: -1 } : {}}
+      whileHover={!isLoading && !isSuccess ? { scale: 1.01 } : {}}
       whileTap={!isLoading && !isSuccess ? { scale: 0.97 } : {}}
     >
       <AnimatePresence mode="wait">
@@ -25,7 +25,7 @@ export default function ProgressButton({ isLoading, isSuccess, onClick, children
             exit={{ opacity: 0, scale: 0.6 }}
             className="absolute inset-0 flex items-center justify-center"
           >
-            <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+            <span className="w-5 h-5 border-2 border-[#0B0F12]/20 border-t-[#0B0F12] rounded-full animate-spin" />
           </motion.span>
         )}
         {isSuccess && !isLoading && (
@@ -37,7 +37,7 @@ export default function ProgressButton({ isLoading, isSuccess, onClick, children
             transition={{ type: 'spring', stiffness: 400, damping: 20 }}
             className="absolute inset-0 flex items-center justify-center"
           >
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-[#0B0F12]" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           </motion.span>

@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { Leaf } from "lucide-react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { getUnsyncedLogs, markLogsSynced } from "./db/localForage";
@@ -42,9 +44,20 @@ const App = () => {
     return () => window.removeEventListener('online', handleOnline);
   }, []);
 
+  const { scrollYProgress } = useScroll();
+  const rotate = useTransform(scrollYProgress, [0, 1], [0, 360]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.2, 1]);
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+
   return (
     <ThemeProvider>
       <LanguageProvider>
+        <div className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center opacity-20 overflow-hidden">
+          <motion.div style={{ rotate, scale, x, display: 'flex' }}>
+            <Leaf size={400} color="#34d399" />
+          </motion.div>
+        </div>
+        <div className="relative z-10 w-full min-h-screen">
         <BrowserRouter
           future={{
             v7_startTransition: true,
@@ -167,6 +180,7 @@ const App = () => {
         <OfflineBanner />
         <VoiceBot />
       </BrowserRouter>
+      </div>
     </LanguageProvider>
     </ThemeProvider>
   );

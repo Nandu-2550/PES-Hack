@@ -18,7 +18,7 @@ function NeonTree({ stage, onPartSelect, t }) {
     visible: { 
       pathLength: 1, 
       opacity: 1, 
-      transition: { duration: 1.8, ease: "easeInOut" }
+      transition: { duration: 1.5, ease: "easeInOut" }
     }
   };
 
@@ -52,21 +52,54 @@ function NeonTree({ stage, onPartSelect, t }) {
 
   return (
     <div className="relative w-full max-w-md aspect-square mx-auto flex items-center justify-center my-auto">
-      {/* Realistic Image Canvas - renders only during growing or selecting phase */}
       {(isGrowing || isSelecting) && (
-        <motion.div
-          className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none"
-          initial={{ clipPath: 'inset(100% 0 0 0)' }}
-          animate={{ clipPath: 'inset(0% 0 0 0)' }}
-          transition={{ duration: 1.8, ease: "easeInOut" }}
+        <motion.svg
+          viewBox="0 0 400 400"
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          initial="hidden"
+          animate="visible"
         >
-          <img 
-            src="/realistic-plant.png" 
-            alt="Neon Plant Anatomy" 
-            className="w-full h-full object-contain"
-            style={{ filter: 'drop-shadow(0 0 20px rgba(52,211,153,0.3))' }}
+          {/* Roots (Cyan) */}
+          <motion.path
+            d="M200,350 Q180,380 150,390 M200,350 Q220,380 250,390 M200,350 L200,395 M190,360 Q160,370 140,360 M210,360 Q240,370 260,360"
+            fill="none"
+            stroke="#00D2FF"
+            strokeWidth="4"
+            strokeLinecap="round"
+            style={{ filter: 'drop-shadow(0 0 8px currentColor)' }}
+            variants={pathVariants}
           />
-        </motion.div>
+          {/* Stem & Leaves (Emerald) */}
+          <motion.path
+            d="M196,350 L196,150 M204,350 L204,150 M200,280 Q150,260 120,290 Q160,300 200,280 M200,220 Q260,200 280,240 Q240,250 200,220"
+            fill="none"
+            stroke="#34d399"
+            strokeWidth="5"
+            strokeLinecap="round"
+            style={{ filter: 'drop-shadow(0 0 8px currentColor)' }}
+            variants={pathVariants}
+          />
+          {/* Fruit (Crimson) on side branch */}
+          <motion.path
+            d="M200,180 Q250,160 270,180 M270,180 A20,20 0 1,0 270.1,180"
+            fill="none"
+            stroke="#f43f5e"
+            strokeWidth="4"
+            strokeLinecap="round"
+            style={{ filter: 'drop-shadow(0 0 8px currentColor)' }}
+            variants={pathVariants}
+          />
+          {/* Flower Crown (Amber) at peak */}
+          <motion.path
+            d="M200,150 C180,120 160,140 200,100 C240,140 220,120 200,150 M200,150 C160,160 160,110 200,100 M200,150 C240,160 240,110 200,100"
+            fill="none"
+            stroke="#f59e0b"
+            strokeWidth="4"
+            strokeLinecap="round"
+            style={{ filter: 'drop-shadow(0 0 8px currentColor)' }}
+            variants={pathVariants}
+          />
+        </motion.svg>
       )}
 
       {/* Interactive Absolute Overlays */}
@@ -95,7 +128,7 @@ const DiagnoseScan = () => {
     setScanStage('growing');
     setTimeout(() => {
       setScanStage('selecting');
-    }, 1800);
+    }, 1500);
   };
 
   const handlePartSelect = (part) => {

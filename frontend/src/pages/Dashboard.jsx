@@ -8,15 +8,6 @@ import { useCachedFetch } from '../hooks/useCachedFetch';
 import { useLanguage } from '../context/LanguageContext';
 import { ScanLine, Briefcase, Tractor, CloudSun, ShoppingBasket, FileText, Landmark, Droplets, Wind, MapPin } from 'lucide-react';
 
-const glassCard = {
-  background: 'rgba(26,36,33,0.42)',
-  backdropFilter: 'blur(20px)',
-  WebkitBackdropFilter: 'blur(20px)',
-  border: '1px solid rgba(255,255,255,0.09)',
-  borderRadius: 20,
-  boxShadow: '0 16px 48px rgba(0,0,0,0.30)',
-};
-
 const containerVariants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.06 } },
@@ -172,7 +163,7 @@ const Dashboard = () => {
             {recentJobs.map(job => <JobCard key={job._id} job={job} isOwner={false} />)}
           </div>
         ) : (
-          <div style={{ ...glassCard, padding: 32, textAlign: 'center' }}>
+          <div className="nfv-card" style={{ padding: 32, textAlign: 'center' }}>
             <p style={{ color: 'rgba(255,255,255,0.40)', fontSize: 13 }}>No recent jobs found in your area.</p>
             <button onClick={() => navigate('/jobs')} className="btn-emerald mt-4" style={{ fontSize: 13, padding: '8px 20px' }}>
               Browse All Jobs
@@ -191,13 +182,8 @@ const QuickActionCard = ({ icon, title, onClick, glow }) => (
     whileTap={{ scale: 0.95 }}
     transition={{ type: 'spring', stiffness: 400, damping: 26 }}
     onClick={onClick}
-    className="group cursor-pointer"
+    className="group cursor-pointer nfv-card"
     style={{
-      background: 'rgba(26,36,33,0.45)',
-      backdropFilter: 'blur(18px)',
-      WebkitBackdropFilter: 'blur(18px)',
-      border: '1px solid rgba(255,255,255,0.08)',
-      borderRadius: 16,
       padding: '16px 8px',
       display: 'flex',
       flexDirection: 'column',
@@ -205,7 +191,6 @@ const QuickActionCard = ({ icon, title, onClick, glow }) => (
       justifyContent: 'center',
       textAlign: 'center',
       minHeight: 80,
-      transition: 'border-color 0.25s, box-shadow 0.25s',
     }}
     onMouseEnter={e => {
       e.currentTarget.style.borderColor = glow.replace('0.25)', '0.40)');

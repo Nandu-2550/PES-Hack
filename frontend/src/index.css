@@ -78,6 +78,8 @@ body {
   position: relative;
   overflow-x: hidden;
   padding-bottom: 80px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 a { text-decoration: none; color: inherit; }
@@ -115,12 +117,7 @@ input:focus, select:focus {
 
   /* ── Organic Glass Card ── */
   .nfv-card {
-    @apply rounded-2xl p-5 transition-all duration-300;
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
+    @apply bg-[#16221f]/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl transition-all duration-300;
   }
   .nfv-card-hover {
     @apply cursor-pointer;
@@ -128,7 +125,7 @@ input:focus, select:focus {
   .nfv-card-hover:hover {
     transform: scale(1.008) translateY(-2px);
     border-color: rgba(52, 211, 153, 0.28);
-    box-shadow: var(--glass-shadow), 0 0 24px rgba(52, 211, 153, 0.08);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), 0 0 24px rgba(52, 211, 153, 0.08);
   }
 
   /* ── Legacy .card (retained for backward compat) ── */
@@ -148,15 +145,15 @@ input:focus, select:focus {
   /* ── Luminous Radium Primary Button ── */
   .btn-primary {
     @apply font-bold rounded-xl px-5 py-3 text-sm transition-all duration-300;
-    background: linear-gradient(135deg, #34D399, #10B981);
+    background: #34D399;
     color: #0B0F12;
-    box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.35);
+    box-shadow: 0 4px 16px rgba(52, 211, 153, 0.25);
   }
   .btn-primary:hover {
-    transform: translateY(-2px);
+    transform: scale(1.01);
     box-shadow: var(--neon-glow);
   }
-  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:active { transform: scale(0.97); }
 
   /* ── Ghost outline button ── */
   .btn-outline {
@@ -187,16 +184,16 @@ input:focus, select:focus {
   /* ── Luminous Radium Emerald CTA ── */
   .btn-emerald {
     @apply font-bold rounded-xl px-5 py-3 text-sm transition-all duration-300;
-    background: linear-gradient(135deg, #34D399, #059669);
+    background: #34D399;
     color: #0B0F12;
     border: none;
     box-shadow: 0 4px 16px rgba(52, 211, 153, 0.25);
   }
   .btn-emerald:hover {
-    transform: translateY(-2px);
+    transform: scale(1.01);
     box-shadow: var(--neon-glow);
   }
-  .btn-emerald:active { transform: translateY(0); }
+  .btn-emerald:active { transform: scale(0.97); }
 
   /* ── Danger button ── */
   .btn-danger {
@@ -293,6 +290,8 @@ input:focus, select:focus {
 
 .tab-dock {
   display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
   padding: 4px;
   gap: 4px;
   margin-bottom: 20px;

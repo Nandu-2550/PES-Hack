@@ -231,15 +231,9 @@ const Onboarding = () => {
         initial={{ opacity: 0, y: 28 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
-        className="w-full max-w-md z-10"
+        className="w-full max-w-md z-10 nfv-card"
         style={{
-          background: 'rgba(26,36,33,0.52)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          border: '1px solid rgba(255,255,255,0.10)',
-          borderRadius: 24,
           padding: 28,
-          boxShadow: '0 24px 80px rgba(0,0,0,0.45)',
         }}
       >
         {/* Tab dock */}
